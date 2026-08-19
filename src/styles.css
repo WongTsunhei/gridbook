@@ -1,0 +1,3797 @@
+:root {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-soft: #f7f7f8;
+  --surface-hover: rgba(0, 0, 0, 0.05);
+  --surface-active: rgba(0, 0, 0, 0.08);
+  --line: rgba(0, 0, 0, 0.08);
+  --line-strong: rgba(0, 0, 0, 0.14);
+  --text: #0d0d0d;
+  --soft-text: #2f2f2f;
+  --muted: #6f7075;
+  --primary: #0d0d0d;
+  --primary-hover: #2a2a2a;
+  --blue: #4169e1;
+  --blue-soft: #eef3ff;
+  --success: #16805c;
+  --warning: #ad6b08;
+  --danger: #c13f3f;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.03);
+  --shadow-float: 0 12px 32px rgba(0, 0, 0, 0.12), 0 3px 8px rgba(0, 0, 0, 0.05);
+  --duration-fast: 150ms;
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei UI", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(93, 97, 107, 0.28) transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+*::-webkit-scrollbar { width: 9px; height: 9px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 99px;
+  background: rgba(93, 97, 107, 0.27);
+  background-clip: padding-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  margin: 0;
+}
+
+body {
+  min-width: 320px;
+  overflow: hidden;
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  color: inherit;
+  font: inherit;
+}
+
+input,
+textarea,
+[contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* V2 spreadsheet viewport: a flat, virtualized canvas instead of a full DOM table. */
+.virtual-grid-shell { position: relative; width: 100%; height: 560px; overflow: hidden; background: #fff; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.virtual-grid-scroll { width: 100%; height: 100%; overflow: auto; overscroll-behavior: contain; contain: strict; }
+.virtual-grid-canvas { position: relative; min-width: 100%; }
+.virtual-grid-head { position: sticky; top: 0; z-index: 8; height: 72px; pointer-events: none; }
+.grid-corner, .grid-col-head, .grid-row-head { position: absolute; top: 0; height: 72px; border: 0; border-right: 1px solid #dfe3ea; border-bottom: 1px solid #dfe3ea; background: #f4f6f9; color: #667085; font-size: 11px; pointer-events: auto; }
+.grid-corner { left: 0; font-size: 14px; }
+.grid-col-head { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0 8px; }
+.grid-col-head span { font-size: 11px; font-weight: 700; color: #667085; }
+.grid-col-head small { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: #344054; }
+.grid-col-head.selected, .grid-row-head.selected, .grid-corner:active { background: #e7efff; color: #2858c7; }
+.grid-col-head i, .grid-row-head i { position: absolute; right: -3px; bottom: 0; z-index: 3; width: 7px; height: 100%; cursor: col-resize; }
+.grid-row-head i { right: 0; bottom: -3px; width: 100%; height: 7px; cursor: row-resize; }
+.virtual-grid-body { position: absolute; left: 0; top: 0; will-change: transform; }
+.selection-range-overlay { position: absolute; z-index: 30; box-sizing: border-box; border: 2px solid var(--ui-blue, #3d73f1); pointer-events: none; }
+.fill-preview-overlay { position: absolute; z-index: 29; box-sizing: border-box; border: 1px dashed var(--ui-blue, #3d73f1); background: rgba(61, 115, 241, 0.08); pointer-events: none; }
+.fill-preview-cell { z-index: 10; }
+.fill-preview-cell .editable-cell { background: rgba(61, 115, 241, 0.06); }
+.fill-preview-cell .editable-cell > button { color: #6f7f9f; }
+.fill-handle { position: absolute; z-index: 40; width: 6px; height: 6px; padding: 0; border: 1px solid #fff; border-radius: 1px; background: var(--ui-blue, #3d73f1); box-shadow: 0 0 0 1px rgba(61, 115, 241, 0.92); cursor: crosshair; pointer-events: auto; }
+.fill-handle:hover { background: #2858c7; box-shadow: 0 0 0 1px #2858c7; }
+.grid-row { position: absolute; left: 0; width: max-content; }
+.grid-row-head { left: 0; height: 55px; display: grid; place-items: center; font-size: 11px; }
+.grid-cell { position: absolute; top: 0; min-width: 50px; border: 1px solid #e5e7eb; background: #fff; overflow: visible; box-sizing: border-box; }
+.grid-row-head { border: 1px solid #dfe3e8; box-sizing: border-box; }
+.grid-cell .editable-cell { width: 100%; height: 100%; min-height: 55px; }
+.grid-cell .editable-cell > button { width: 100%; height: 100%; padding: 0 12px; border: 0; background: transparent; text-align: left; }
+.grid-cell .editable-cell.is-selected { background: transparent; }
+.grid-cell .editable-cell.is-active-cell::before { z-index: 4; }
+.grid-cell .editable-cell input { width: 100%; height: 100%; border: 2px solid var(--blue); border-radius: 0; }
+.table-card { border: 0; border-radius: 0; box-shadow: none; background: transparent; }
+.table-titlebar { min-height: 42px; padding: 0 4px; }
+.workspace-main { padding: 18px 20px 28px; }
+.spreadsheet-toolbar, .scope-bar { max-width: none; }
+
+/* Excel-like sheet chrome: keep only the document bar, menus, toolbar, formula bar and grid. */
+.app-shell { background: #fff; color: #1f2329; }
+.topbar { height: 48px; flex-basis: 48px; padding: 0 16px; background: #f5f6f7; border-bottom: 1px solid #dfe2e6; box-shadow: none; }
+.brand-block { gap: 12px; }
+.brand-mark { width: 22px; height: 22px; padding: 4px; border-radius: 3px; background: #20a464; box-shadow: none; }
+.brand-block p, .demo-pill { display: none; }
+.brand-block h1 { font-size: 16px; font-weight: 600; }
+.topbar-right { gap: 14px; }
+.connection-state { border: 0; background: transparent; color: #72777d; padding: 0; height: auto; font-size: 12px; }
+.connection-state i { width: 6px; height: 6px; }
+.presence-stack, .online-copy { display: none; }
+.identity-button { height: 30px; padding: 2px 7px; border: 0; border-radius: 4px; background: transparent; }
+.identity-button span { display: none; }
+.avatar { width: 26px; height: 26px; font-size: 9px; }
+.workspace { display: block; height: calc(100% - 48px); overflow: hidden; }
+.workspace-main { width: 100%; height: 100%; padding: 0; overflow: hidden; }
+.excel-workspace .workspace-main { display: flex; flex-direction: column; }
+.page-heading, .scope-bar, .table-titlebar, .environment-note, .activity-panel { display: none !important; }
+.spreadsheet-toolbar { height: 102px; min-height: 102px; margin: 0; padding: 0 18px; border-bottom: 1px solid #dfe2e6; background: #f7f8f9; display: flex; flex-wrap: wrap; align-content: center; gap: 2px; }
+.spreadsheet-toolbar::before { content: '开始   插入   数据   公式   协作   视图   效率工具   会员专享'; display: block; position: absolute; top: 0; left: 18px; height: 32px; color: #3d4248; font-size: 13px; line-height: 32px; white-space: pre; }
+.spreadsheet-toolbar { position: relative; padding-top: 32px; }
+.toolbar-label, .toolbar-tip, .toolbar-separator { display: none; }
+.toolbar-group { gap: 0; }
+.toolbar-group > button { height: 34px; min-width: 34px; padding: 0 9px; border-radius: 3px; color: #3f454b; font-size: 12px; }
+.toolbar-group > button:hover, .toolbar-group > button.active { background: #e4e7eb; color: #1f2329; }
+.formatting-group { margin-left: 4px; }
+.fill-group { margin-left: 4px; }
+.fill-group > button { min-width: 28px; }
+.table-card { height: calc(100% - 102px); display: flex; flex-direction: column; }
+.virtual-grid-shell { height: calc(100% - 38px); border: 0; background: #fff; }
+.virtual-grid-head { height: 32px; }
+.grid-corner, .grid-col-head { height: 32px; background: #f1f3f5; color: #525960; }
+.grid-col-head { padding: 0; }
+.grid-col-head small { display: none; }
+.grid-col-head span { font-size: 12px; font-weight: 500; }
+.grid-row-head { height: 29px; background: #f1f3f5; color: #656b73; font-size: 11px; }
+.grid-cell { border-color: #e0e3e7; }
+.grid-cell .editable-cell { min-height: 29px; }
+.grid-cell .editable-cell > button { min-height: 29px; padding: 0 7px; }
+.grid-cell .editable-cell input { min-height: 29px; }
+.table-footer { height: 38px; min-height: 38px; padding: 0 12px; border-top: 1px solid #dfe2e6; border-bottom: 0; background: #f7f8f9; font-size: 11px; }
+.table-footer p:first-child { display: none; }
+.table-footer p:last-child { margin-left: auto; }
+.table-footer p:last-child span { margin: 0 7px; }
+.toast { bottom: 48px; }
+.sheet-save-state { color: #858b92; font-size: 12px; }
+.sheet-icon-button { border: 0; background: transparent; color: #4a5057; font-size: 18px; padding: 4px 7px; }
+.sheet-share-button { border: 0; border-radius: 4px; padding: 7px 16px; color: #fff; background: #2878ee; font-size: 13px; }
+.formula-bar { height: 38px; min-height: 38px; display: flex; align-items: center; gap: 8px; padding: 4px 10px; border-bottom: 1px solid #dfe2e6; background: #fff; }
+.formula-bar input { height: 28px; border: 1px solid #d8dce1; border-radius: 2px; padding: 0 8px; font-size: 13px; background: #fff; }
+.formula-bar input:first-child { width: 86px; text-align: center; }
+.formula-bar input:last-child { flex: 1; border-color: transparent; }
+.formula-divider { width: 1px; height: 22px; background: #dfe2e6; }
+.formula-fx { width: 24px; color: #697586; font: italic 600 16px/1 Georgia, "Times New Roman", serif; text-align: center; user-select: none; }
+.formula-symbol { color: #6b727a; font-family: Georgia, serif; font-size: 16px; font-style: italic; }
+.sheet-tabs { height: 38px; min-height: 38px; display: flex; align-items: center; gap: 10px; padding: 0 10px; border-top: 1px solid #dfe2e6; background: #f7f8f9; color: #626970; font-size: 12px; }
+.sheet-tabs button { border: 0; background: transparent; color: inherit; font-size: 13px; }
+.sheet-tab { height: 38px; padding: 0 12px; border-bottom: 2px solid transparent !important; }
+.sheet-tab.active { color: #1f2329; border-bottom-color: #2878ee !important; background: #fff; }
+.sheet-tab-spacer { flex: 1; }
+.sheet-context-menu {
+  position: fixed;
+  z-index: 1200;
+  max-width: calc(100vw - 20px);
+}
+.excel-table-card { flex: 1 1 auto; min-height: 0; height: auto; }
+
+button { cursor: pointer; }
+button:disabled { cursor: default; opacity: 0.45; }
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--blue) 65%, transparent);
+  outline-offset: 2px;
+}
+
+svg {
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.app-shell {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.topbar {
+  position: relative;
+  z-index: 20;
+  height: 72px;
+  flex: 0 0 72px;
+  padding: 0 26px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(18px);
+}
+
+.brand-block,
+.topbar-right,
+.heading-actions,
+.scope-bar,
+.period-chip,
+.table-titlebar,
+.table-titlebar > div,
+.table-footer,
+.environment-note,
+.activity-heading,
+.activity-footnote {
+  display: flex;
+  align-items: center;
+}
+
+.brand-block { gap: 11px; min-width: 0; }
+
+.brand-mark,
+.dialog-mark {
+  width: 37px;
+  height: 37px;
+  padding: 8px;
+  border-radius: 11px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+  background: var(--primary);
+  box-shadow: 0 5px 15px rgba(18, 19, 21, 0.13);
+}
+
+.brand-mark span,
+.dialog-mark span {
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  border-radius: 2px;
+}
+
+.brand-block p {
+  margin: 0 0 1px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.15em;
+  line-height: 1;
+}
+
+.brand-block h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.demo-pill {
+  height: 20px;
+  padding: 0 7px;
+  border: 1px solid rgba(65, 105, 225, 0.2);
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  color: #3455ba;
+  background: var(--blue-soft);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.topbar-right { justify-content: flex-end; gap: 11px; }
+
+.connection-state {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid rgba(22, 128, 92, 0.13);
+  border-radius: 99px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--success);
+  background: rgba(22, 128, 92, 0.07);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.connection-state i,
+.live-badge i,
+.plain-data-note i,
+.autosave-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.state-connecting,
+.state-reconnecting {
+  color: var(--warning);
+  border-color: rgba(173, 107, 8, 0.13);
+  background: rgba(173, 107, 8, 0.07);
+}
+
+.state-reconnecting i { animation: status-pulse 1.3s ease-in-out infinite; }
+
+.presence-stack { display: flex; padding-left: 9px; }
+.presence-stack .avatar { margin-left: -9px; box-shadow: 0 0 0 2px var(--surface); }
+
+.avatar {
+  --avatar-color: #4169e1;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #fff;
+  background: var(--avatar-color);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.avatar-small { width: 29px; height: 29px; font-size: 9px; }
+.avatar-large { width: 42px; height: 42px; font-size: 13px; }
+.avatar-more { color: var(--soft-text); background: #e8e9ec; }
+
+.online-copy { color: var(--muted); font-size: 12px; white-space: nowrap; }
+
+.identity-button {
+  height: 39px;
+  margin-left: 2px;
+  padding: 3px 10px 3px 4px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.identity-button:hover { border-color: var(--line-strong); background: #fafafa; }
+.identity-button:active { transform: scale(0.975); }
+
+.workspace {
+  min-height: 0;
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 318px;
+  overflow: hidden;
+}
+
+.workspace-main {
+  min-width: 0;
+  min-height: 0;
+  padding: 25px 27px 32px;
+  overflow: auto;
+}
+
+.page-heading {
+  max-width: 1500px;
+  margin: 0 auto 21px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.breadcrumb {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 550;
+}
+
+.breadcrumb b { color: #b9bbc1; font-weight: 400; }
+.breadcrumb strong { color: var(--soft-text); font-weight: 620; }
+
+.page-heading h2 {
+  margin: 0 0 5px;
+  font-size: clamp(23px, 2.1vw, 29px);
+  font-weight: 680;
+  letter-spacing: -0.035em;
+  line-height: 1.18;
+}
+
+.page-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.heading-actions { gap: 8px; flex: 0 0 auto; }
+
+.button {
+  min-height: 37px;
+  padding: 7px 13px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--text);
+  background: #ebeced;
+  font-size: 12px;
+  font-weight: 620;
+  transition: background 150ms ease, transform 180ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 150ms ease;
+}
+
+.button svg { width: 15px; height: 15px; }
+.button:hover { background: #e2e3e5; }
+.button:active:not(:disabled) { transform: scale(0.972); }
+.button.primary { color: #fff; background: var(--primary); box-shadow: 0 4px 12px rgba(18, 19, 21, 0.12); }
+.button.primary:hover { background: #292b2e; }
+.button.secondary { border: 1px solid var(--line); background: var(--surface); }
+.button.secondary:hover { border-color: var(--line-strong); background: #fafafa; }
+
+.scope-bar {
+  max-width: 1500px;
+  min-height: 50px;
+  margin: 0 auto 12px;
+  padding: 6px 0;
+  border: 0;
+  border-radius: 0;
+  gap: 12px;
+  background: transparent;
+}
+
+.spreadsheet-toolbar {
+  max-width: 1500px;
+  min-height: 46px;
+  margin: 0 auto 9px;
+  padding: 5px 0;
+  border: 0;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  background: transparent;
+  box-shadow: none;
+}
+
+.toolbar-label {
+  padding: 0 7px;
+  color: #8c8f97;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+}
+
+.toolbar-group { display: flex; align-items: center; gap: 2px; }
+.toolbar-group > button {
+  height: 32px;
+  min-width: 32px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 7px;
+  color: #4f5259;
+  background: transparent;
+  font-size: 10px;
+  font-weight: 610;
+  white-space: nowrap;
+}
+
+.toolbar-group > button:hover { color: var(--text); background: #eef0f2; }
+.toolbar-group > button.active { color: #254bb6; background: #e8efff; }
+.formatting-group > button { padding: 0; }
+.formatting-group > button:nth-child(3) { width: auto; padding: 0 8px; }
+.formatting-group b { font-size: 13px; }
+.formatting-group > button > i { font-family: Georgia, serif; font-size: 14px; }
+.toolbar-separator { width: 1px; height: 23px; flex: 0 0 auto; background: var(--line); }
+.toolbar-tip { margin-left: auto; padding: 0 8px; color: #999ca3; font-size: 9px; white-space: nowrap; }
+
+.align-glyph { width: 14px; display: flex; flex-direction: column; gap: 2px; }
+.align-glyph i { height: 1.5px; border-radius: 99px; display: block; background: currentColor; }
+.align-glyph i:nth-child(2) { width: 9px; }
+.align-center { align-items: center; }
+.align-right { align-items: flex-end; }
+
+.fill-group > button.fill-button { width: 27px; min-width: 27px; padding: 0; }
+.fill-button > span { width: 14px; height: 14px; border: 1px solid rgba(0, 0, 0, 0.11); border-radius: 4px; display: block; }
+.fill-none > span { background: linear-gradient(135deg, #fff 45%, #d55353 46%, #d55353 54%, #fff 55%); }
+.fill-yellow > span { background: #fff0a8; }
+.fill-blue > span { background: #cfe0ff; }
+.fill-green > span { background: #cdeedc; }
+.fill-rose > span { background: #f5ced8; }
+
+.scope-tabs {
+  padding: 3px;
+  border-radius: 10px;
+  display: flex;
+  gap: 2px;
+  background: var(--surface-soft);
+}
+
+.scope-tabs button {
+  height: 30px;
+  padding: 0 13px;
+  border: 0;
+  border-radius: 7px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.scope-tabs button.active { color: var(--text); background: var(--surface); box-shadow: var(--shadow-sm); }
+
+.period-chip {
+  height: 34px;
+  padding: 0 11px;
+  border-left: 1px solid var(--line);
+  gap: 8px;
+  font-size: 12px;
+}
+
+.period-chip span { color: var(--muted); }
+.period-chip strong { font-weight: 650; }
+
+.plain-data-note {
+  margin-left: auto;
+  padding-right: 8px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.plain-data-note i { width: 5px; height: 5px; color: #9b9da3; }
+
+.table-card {
+  max-width: 1500px;
+  margin: 0 auto;
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+}
+
+.table-titlebar {
+  min-height: 54px;
+  padding: 0 0 11px;
+  border-bottom: 0;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.table-titlebar > div { gap: 8px; }
+.table-titlebar h3 { margin: 0; font-size: 13px; font-weight: 670; }
+.table-titlebar h3 + span {
+  padding: 2px 7px;
+  border-radius: 99px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.table-hint { color: var(--muted); font-size: 11px; }
+.table-hint svg { width: 14px; height: 14px; }
+
+.table-scroll {
+  max-width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+.contribution-table {
+  width: 100%;
+  min-width: 1172px;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  font-size: 12px;
+}
+
+.contribution-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  height: 39px;
+  padding: 0 12px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: #656870;
+  background: #f7f7f8;
+  font-size: 10px;
+  font-weight: 680;
+  letter-spacing: 0.015em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.contribution-table thead th:last-child,
+.contribution-table td:last-child { border-right: 0; }
+
+.contribution-table td {
+  height: var(--row-height, 55px);
+  min-height: var(--row-height, 55px);
+  padding: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  vertical-align: middle;
+}
+
+.contribution-table tbody tr:last-child td { border-bottom: 0; }
+.contribution-table tbody tr { height: var(--row-height, 55px); }
+
+.contribution-table thead th:first-child {
+  left: 0;
+  z-index: 5;
+  box-shadow: 1px 0 0 var(--line);
+}
+
+.column-letter-row th {
+  top: 0 !important;
+  height: 24px !important;
+  padding: 0 !important;
+  color: #8b8e96 !important;
+  background: #eeeff1 !important;
+  font-size: 9px !important;
+  text-align: center !important;
+}
+
+.field-label-row th { top: 24px !important; }
+.field-label-row th:not(.row-heading) { position: sticky; }
+.field-label-row th > span { display: block; overflow: hidden; text-overflow: ellipsis; }
+.header-selected { color: #3157bf !important; background: #e6edff !important; }
+
+.sheet-corner { z-index: 8 !important; cursor: default; }
+.sheet-corner span {
+  position: absolute;
+  right: 5px;
+  bottom: 4px;
+  width: 0;
+  height: 0;
+  border-right: 7px solid #aeb1b8;
+  border-top: 7px solid transparent;
+}
+
+.row-heading { z-index: 8 !important; color: #a0a3aa !important; text-align: center !important; }
+.row-number-column { width: 46px; }
+.row-number {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  min-width: 46px;
+  padding: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: #8b8e96;
+  background: #f2f3f5;
+  height: var(--row-height, 55px);
+  font-size: 9px;
+  font-weight: 620;
+  text-align: center;
+  box-shadow: 1px 0 0 var(--line);
+}
+
+.column-resizer,
+.row-resizer {
+  position: absolute;
+  z-index: 10;
+  display: block;
+}
+
+.column-resizer { top: 0; right: -3px; width: 7px; height: 100%; cursor: col-resize; }
+.row-resizer { left: 0; bottom: -3px; width: 100%; height: 7px; cursor: row-resize; }
+.column-resizer:hover::after,
+.row-resizer:hover::after { content: ""; position: absolute; background: var(--blue); }
+.column-resizer:hover::after { top: 0; right: 3px; width: 1px; height: 100%; }
+.row-resizer:hover::after { left: 0; bottom: 3px; width: 100%; height: 1px; }
+
+.editable-cell {
+  position: relative;
+  width: 100%;
+  height: var(--row-height, 55px);
+  min-height: 30px;
+  overflow: visible;
+  background: var(--surface);
+  transition: background 140ms ease, box-shadow 140ms ease;
+}
+
+.editable-cell > button {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  padding: 9px 28px 9px 12px;
+  border: 0;
+  display: flex;
+  align-items: center;
+  color: var(--soft-text);
+  background: transparent;
+  text-align: left;
+}
+
+.field-account_name .editable-cell > button { color: var(--text); font-weight: 650; }
+.field-publish_count .editable-cell > button,
+.field-total_followers .editable-cell > button,
+.field-short_graphic_leads .editable-cell > button,
+.field-live_leads .editable-cell > button,
+.field-openings .editable-cell > button {
+  justify-content: flex-end;
+  padding-right: 34px;
+  font-variant-numeric: tabular-nums;
+}
+
+.editable-cell > button > span:first-child {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.editable-cell:hover:not(.is-editing):not(.has-remote-editor):not(.has-cell-fill) { background: #fafbfc; }
+.editable-cell.has-cell-fill,
+.editable-cell.has-cell-fill:hover:not(.is-editing):not(.has-remote-editor) { background: var(--cell-fill) !important; }
+.editable-cell .empty-value { color: #c2c4c9; }
+
+.editable-cell.is-selected { background: transparent; }
+.editable-cell.is-active-cell::before { display: none; }
+.excel-app-shell .grid-cell.cell-selected {
+  /* Paint selected cells above adjacent rows so the bottom edge cannot be
+     covered by the next row's background during hover or pointer movement. */
+  z-index: 8;
+  border-color: #e5e9ee;
+}
+.excel-app-shell .grid-cell.cell-selected.selection-top { border-top: 2px solid var(--ui-blue); }
+.excel-app-shell .grid-cell.cell-selected.selection-right { border-right: 2px solid var(--ui-blue); }
+.excel-app-shell .grid-cell.cell-selected.selection-bottom { border-bottom: 2px solid var(--ui-blue); }
+.excel-app-shell .grid-cell.cell-selected.selection-left { border-left: 2px solid var(--ui-blue); }
+.excel-app-shell .grid-cell.cell-active {
+  border: 1px solid #e5e9ee;
+  outline: 2px solid var(--ui-blue);
+  outline-offset: -1px;
+  z-index: 9;
+}
+
+.merged-cell { position: relative; z-index: 1; background: var(--surface); }
+.merged-cell .editable-cell { min-height: 100%; }
+.format-bold .editable-cell > button { font-weight: 750; }
+.format-italic .editable-cell > button { font-style: italic; }
+.excel-app-shell .format-italic .editable-cell > button { font-style: italic !important; }
+.excel-app-shell .format-italic .editable-cell > button > span:first-child {
+  display: inline-block;
+  font-style: oblique 12deg !important;
+  transform: skewX(-10deg);
+  transform-origin: left center;
+}
+.format-underline .editable-cell > button { text-decoration: underline; }
+.excel-app-shell .grid-cell.format-border {
+  /* Legacy fallback. New borders are rendered from four persisted edges. */
+  border: 1px solid #66717d;
+  box-sizing: border-box;
+  box-shadow: none !important;
+}
+.excel-app-shell .grid-cell.format-border::after {
+  display: none;
+}
+/* Replace the native cell edge while keeping the cell's measured size and
+   text position unchanged. This keeps all four blue edges visible on hover. */
+.excel-app-shell .grid-cell.cell-active,
+.excel-app-shell .grid-cell.cell-active.format-border {
+  border: 1px solid #e5e9ee;
+  box-shadow: inset 0 0 0 2px var(--ui-blue, #3d73f1) !important;
+  outline: none !important;
+  z-index: 20 !important;
+}
+/* Hover is a pointer affordance only. It must never hide the selection
+   overlay or replace the selected fill when the pointer enters a selected
+   cell. */
+.excel-app-shell .grid-cell.cell-selected .editable-cell.is-selected,
+.excel-app-shell .grid-cell.cell-active .editable-cell.is-selected {
+  background: linear-gradient(rgba(61, 115, 241, .11), rgba(61, 115, 241, .11)), var(--cell-fill, transparent) !important;
+}
+.format-align-left .editable-cell > button { justify-content: flex-start !important; text-align: left; }
+.format-align-center .editable-cell > button { justify-content: center !important; text-align: center; }
+.format-align-right .editable-cell > button { justify-content: flex-end !important; text-align: right; }
+.format-align-justify .editable-cell > button { text-align: justify; }
+.format-vertical-top .editable-cell > button { align-items: flex-start; }
+.format-vertical-middle .editable-cell > button { align-items: center; }
+.format-vertical-bottom .editable-cell > button { align-items: flex-end; }
+.format-color-red .editable-cell > button { color: #d63638; }
+.format-color-blue .editable-cell > button { color: #2667d6; }
+.format-color-green .editable-cell > button { color: #228451; }
+.format-wrap .editable-cell > button > span:first-child { overflow: visible; text-overflow: clip; white-space: normal; line-height: 1.35; }
+.format-fill-yellow .editable-cell { background: #fff8cf; }
+.format-fill-blue .editable-cell { background: #e7f0ff; }
+.format-fill-green .editable-cell { background: #e3f5eb; }
+.format-fill-rose .editable-cell { background: #fae8ed; }
+
+.editable-cell input {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  color: var(--text);
+  background: #fff;
+  box-shadow: none;
+  font-size: 12px;
+}
+
+.editable-cell input[type="number"] { text-align: right; -moz-appearance: textfield; }
+.editable-cell input[type="number"]::-webkit-inner-spin-button,
+.editable-cell input[type="number"]::-webkit-outer-spin-button { margin: 0; -webkit-appearance: none; }
+
+.remote-editor {
+  --avatar-color: #4169e1;
+  position: absolute;
+  z-index: 6;
+  top: -24px;
+  /* The badge is mounted inside the editable content box, which starts one
+     pixel inside the outer grid border. Offset it back to the cell edge. */
+  left: -1px;
+  right: auto;
+  max-width: calc(100% - 2px);
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 3px 3px 0 0;
+  display: inline-flex;
+  align-items: center;
+  overflow: hidden;
+  color: #fff;
+  background: var(--avatar-color);
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--avatar-color) 24%, transparent);
+  font-size: 12px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* A collaborator editing the first data row would otherwise place the
+   floating badge at a negative top offset behind the frozen column-label
+   rail. Render that one badge inside the fixed header layer instead. */
+.remote-editor-fixed-head {
+  top: 8px;
+  right: auto;
+  z-index: 50;
+}
+
+.has-remote-editor {
+  z-index: 11;
+  box-shadow: inset 0 0 0 2px var(--avatar-color) !important;
+}
+
+/* Keep the fixed first-row badge visually welded to the cell beneath it.
+   The outer grid edge is the seam visible between the fixed header layer and
+   the scrolling body, so it must use the same collaborator color. */
+.excel-app-shell .grid-cell.remote-editor-anchor {
+  border-top-color: var(--avatar-color) !important;
+}
+
+.saving-indicator {
+  position: absolute;
+  right: 8px;
+  bottom: 7px;
+  width: 11px;
+  height: 11px;
+  border: 1.5px solid #c5c8cf;
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+.saved-check {
+  position: absolute;
+  right: 6px;
+  bottom: 5px;
+  color: var(--success);
+}
+
+.saved-check svg { width: 12px; height: 12px; }
+.is-flashing { animation: cell-flash 1.3s ease-out; }
+
+.table-message {
+  height: 210px !important;
+  color: var(--muted);
+  text-align: center;
+}
+
+.loading-ring {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border: 2px solid #d9dbe0;
+  border-top-color: var(--text);
+  border-radius: 50%;
+  display: inline-block;
+  vertical-align: -3px;
+  animation: spin 0.75s linear infinite;
+}
+
+.table-footer {
+  min-height: 42px;
+  padding: 0 14px 0 17px;
+  border-top: 0;
+  justify-content: space-between;
+  gap: 18px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 10px;
+}
+
+.table-footer p { margin: 0; display: flex; align-items: center; gap: 6px; }
+.table-footer p b { margin-left: 8px; color: #62656d; font-size: 9px; font-weight: 620; }
+.autosave-dot { width: 6px; height: 6px; color: var(--success); }
+.table-footer p:last-child span { color: #c2c4c9; }
+
+.environment-note {
+  max-width: 1500px;
+  margin: 13px auto 0;
+  padding: 12px 0;
+  border: 0;
+  border-radius: 0;
+  gap: 11px;
+  color: #4f5667;
+  background: transparent;
+}
+
+.environment-icon,
+.shield-icon {
+  width: 27px;
+  height: 27px;
+  border-radius: 8px;
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  color: #365bc3;
+  background: rgba(65, 105, 225, 0.11);
+}
+
+.environment-icon svg,
+.shield-icon svg { width: 14px; height: 14px; }
+.environment-note strong { display: block; margin-bottom: 2px; color: #30384b; font-size: 11px; }
+.environment-note p { margin: 0; font-size: 10px; line-height: 1.45; }
+
+.activity-panel {
+  min-width: 0;
+  min-height: 0;
+  padding: 25px 19px 18px;
+  border-left: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: rgba(252, 252, 253, 0.9);
+}
+
+.activity-heading { min-height: 48px; justify-content: space-between; gap: 12px; }
+.section-kicker { margin: 0 0 4px; color: #9a9da5; font-size: 8px; font-weight: 750; letter-spacing: 0.14em; }
+.activity-heading h2 { margin: 0; font-size: 15px; font-weight: 680; }
+
+.live-badge {
+  height: 23px;
+  padding: 0 8px;
+  border-radius: 99px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--success);
+  background: rgba(22, 128, 92, 0.08);
+  font-size: 9px;
+  font-weight: 650;
+}
+
+.live-badge i { width: 5px; height: 5px; animation: status-pulse 1.8s ease-in-out infinite; }
+
+.activity-list {
+  min-height: 0;
+  margin-top: 12px;
+  flex: 1;
+  overflow: auto;
+}
+
+.activity-item {
+  position: relative;
+  min-height: 66px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+  display: grid;
+  grid-template-columns: 29px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: start;
+}
+
+.activity-item p { margin: 0; color: var(--soft-text); font-size: 10px; line-height: 1.45; }
+.activity-item p strong { color: var(--text); font-weight: 680; }
+.activity-item p span { font-weight: 600; }
+.activity-item .activity-detail {
+  max-width: 180px;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-item time { padding-top: 1px; color: #a0a3aa; font-size: 9px; font-variant-numeric: tabular-nums; }
+.activity-empty { padding: 35px 18px; color: var(--muted); font-size: 11px; line-height: 1.6; text-align: center; }
+
+.activity-footnote {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  gap: 9px;
+  background: var(--surface);
+}
+
+.activity-footnote p { margin: 0; }
+.activity-footnote strong { display: block; margin-bottom: 2px; font-size: 10px; }
+.activity-footnote p span { display: block; color: var(--muted); font-size: 9px; line-height: 1.4; }
+
+.dialog-backdrop {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  padding: 20px;
+  display: grid;
+  place-items: center;
+  background: rgba(18, 19, 23, 0.38);
+  backdrop-filter: blur(7px);
+  animation: fade-in 180ms ease-out;
+}
+
+.identity-dialog {
+  width: min(390px, 100%);
+  padding: 29px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 21px;
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  animation: dialog-in 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dialog-mark { width: 42px; height: 42px; margin-bottom: 18px; border-radius: 13px; }
+.dialog-eyebrow { margin: 0 0 8px; color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: 0.12em; }
+.identity-dialog h2 { margin: 0 0 7px; font-size: 23px; letter-spacing: -0.035em; }
+.dialog-copy { margin: 0 0 22px; color: var(--muted); font-size: 12px; line-height: 1.55; }
+
+.name-field { display: block; }
+.name-field span { display: block; margin: 0 0 7px 2px; color: var(--soft-text); font-size: 11px; font-weight: 620; }
+.name-field input {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  outline: 0;
+  background: #fff;
+  font-size: 13px;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.name-field input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(65, 105, 225, 0.11); }
+.dialog-submit { width: 100%; min-height: 43px; margin-top: 12px; }
+.dialog-note { margin: 14px 0 0; color: #999ca3; font-size: 9px; text-align: center; }
+
+.context-menu {
+  position: fixed;
+  z-index: 120;
+  width: 250px;
+  padding: 7px;
+  border: 1px solid rgba(20, 22, 28, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: var(--shadow-float);
+  backdrop-filter: blur(18px);
+  max-height: min(510px, calc(100vh - 24px));
+  overflow-y: auto;
+  animation: menu-in 130ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.context-menu-title { padding: 6px 9px 8px; display: flex; align-items: center; justify-content: space-between; }
+.context-menu-title span { color: var(--muted); font-size: 9px; }
+.context-menu-title strong { color: var(--soft-text); font-size: 9px; font-weight: 680; }
+
+.context-menu > button {
+  width: 100%;
+  height: 37px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  gap: 7px;
+  align-items: center;
+  color: var(--soft-text);
+  background: transparent;
+  font-size: 11px;
+  text-align: left;
+}
+
+.context-menu > button:hover { color: var(--text); background: #f1f2f4; }
+.context-menu .clear-action:hover { color: var(--danger); background: rgba(193, 63, 63, 0.07); }
+.menu-icon { width: 20px; color: #777a82; font-size: 15px; text-align: center; }
+.context-menu kbd {
+  padding: 2px 5px;
+  border: 1px solid #dfe0e3;
+  border-radius: 4px;
+  color: #9699a0;
+  background: #f8f8f9;
+  font-family: inherit;
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.context-menu-separator { height: 1px; margin: 5px 4px; background: var(--line); }
+.context-menu-meta { margin: 5px 4px 2px; padding: 8px 6px 3px; border-top: 1px solid var(--line); color: var(--muted); font-size: 8px; line-height: 1.5; }
+.context-menu-meta strong { color: var(--soft-text); }
+
+.toast {
+  position: fixed;
+  z-index: 150;
+  left: 50%;
+  bottom: 24px;
+  max-width: min(440px, calc(100vw - 32px));
+  min-height: 40px;
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  background: rgba(24, 25, 28, 0.95);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2);
+  font-size: 11px;
+  font-weight: 580;
+  transform: translateX(-50%);
+  animation: toast-in 230ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toast svg { width: 15px; height: 15px; color: #8de0ba; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fade-in { from { opacity: 0; } }
+@keyframes dialog-in { from { opacity: 0; transform: translateY(10px) scale(0.98); } }
+@keyframes menu-in { from { opacity: 0; transform: translateY(-4px) scale(0.98); } }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } }
+@keyframes cell-flash { 0% { background: rgba(65, 105, 225, 0.18); } 100% { background: var(--surface); } }
+@keyframes status-pulse { 50% { opacity: 0.35; transform: scale(0.75); } }
+
+@media (max-width: 1180px) {
+  .workspace { grid-template-columns: minmax(0, 1fr) 278px; }
+  .activity-panel { padding-left: 15px; padding-right: 15px; }
+  .workspace-main { padding-left: 20px; padding-right: 20px; }
+  .online-copy { display: none; }
+}
+
+@media (max-width: 960px) {
+  .workspace { display: block; overflow: auto; }
+  .workspace-main { min-height: 100%; overflow: visible; }
+  .activity-panel { display: none; }
+  .topbar { padding: 0 18px; }
+  .connection-state { font-size: 0; width: 29px; padding: 0; justify-content: center; }
+  .connection-state i { width: 7px; height: 7px; }
+}
+
+@media (max-width: 680px) {
+  .topbar { height: 62px; flex-basis: 62px; padding: 0 13px; }
+  .brand-mark { width: 34px; height: 34px; }
+  .brand-block p { display: none; }
+  .brand-block h1 { font-size: 14px; }
+  .demo-pill,
+  .presence-stack,
+  .identity-button > span { display: none; }
+  .identity-button { width: 37px; padding: 3px; justify-content: center; }
+  .workspace-main { padding: 18px 12px 28px; }
+  .page-heading { display: block; }
+  .page-heading h2 { font-size: 23px; }
+  .page-heading p { max-width: 95%; }
+  .heading-actions { margin-top: 15px; }
+  .scope-bar { align-items: stretch; flex-wrap: wrap; }
+  .scope-tabs { flex: 1; }
+  .scope-tabs button { flex: 1; }
+  .period-chip { border-left: 0; }
+  .plain-data-note { width: 100%; padding: 0 6px 4px; }
+  .table-titlebar { align-items: flex-start; flex-direction: column; padding-top: 12px; padding-bottom: 11px; }
+  .table-hint { padding-left: 0; }
+  .table-footer { align-items: flex-start; flex-direction: column; padding-top: 10px; padding-bottom: 10px; gap: 5px; }
+  .environment-note { align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Final Excel layout overrides (must remain after legacy responsive rules). */
+.excel-app-shell .topbar { display: none; }
+.excel-app-shell .workspace { display: block; grid-template-columns: none; height: calc(100% - 48px); min-height: 0; overflow: hidden; }
+.excel-app-shell .workspace { height: 100%; }
+.excel-app-shell .spreadsheet-toolbar { height: 48px; min-height: 48px; margin: 0; padding: 0 18px; display: flex; flex-wrap: wrap; align-content: center; align-items: center; justify-content: flex-start !important; gap: 2px; background: #f7f8f9; border-bottom: 1px solid #dfe2e6; }
+.excel-app-shell .spreadsheet-toolbar::before { content: none; display: none; }
+.excel-app-shell .spreadsheet-toolbar select { height: 28px; min-width: 52px; padding: 0 5px; border: 1px solid #dfe2e6; border-radius: 3px; background: #fff; color: #3f454b; font-size: 12px; }
+.excel-app-shell .virtual-grid-body { width: 100%; }
+.excel-app-shell .grid-row { width: 100%; }
+.excel-app-shell .workspace-main { padding: 0; }
+.excel-app-shell .page-heading, .excel-app-shell .scope-bar, .excel-app-shell .environment-note, .excel-app-shell .activity-panel, .excel-app-shell .table-titlebar { display: none !important; }
+.excel-app-shell .table-card { border: 0; border-radius: 0; box-shadow: none; }
+.excel-app-shell .excel-table-card { width: 100%; max-width: none; margin: 0; flex: 1 1 auto; min-height: 0; }
+.excel-app-shell .table-footer { display: none; }
+.excel-app-shell .virtual-grid-shell { height: 100%; }
+.excel-app-shell .grid-corner, .excel-app-shell .grid-col-head { height: 32px; }
+.excel-app-shell .grid-row-head { height: 29px; }
+.excel-app-shell .grid-cell .editable-cell,
+.excel-app-shell .grid-cell .editable-cell > button,
+.excel-app-shell .grid-cell .editable-cell input {
+  min-height: calc(29px * var(--sheet-zoom, 1));
+}
+.excel-app-shell .virtual-grid-scroll { scrollbar-gutter: auto; }
+.excel-app-shell .grid-row-head { z-index: 6; border-right-color: #dfe3e8; border-bottom-color: #dfe3e8; background: #f4f6f8; }
+.excel-app-shell .grid-cell { border-right-color: #dfe3e8; border-bottom-color: #dfe3e8; }
+.excel-app-shell .grid-cell-frozen { box-shadow: 1px 0 0 #cfd6e0; }
+.excel-app-shell .grid-corner { z-index: 12; }
+.excel-app-shell .grid-cell .editable-cell input { border: 0; outline: 0; box-shadow: none; }
+.excel-app-shell .sheet-statistics { height: 24px; min-height: 24px; display: flex; align-items: center; padding: 0 14px; border-top: 1px solid #dfe2e6; background: #f7f8f9; color: #454b53; font-size: 12px; }
+
+/* Unified workbook UI.  These rules intentionally sit last so the retired
+   demo chrome cannot leak its card spacing or mixed typography into the grid. */
+.excel-app-shell {
+  --ui-ink: #1f2329;
+  --ui-muted: #707782;
+  --ui-line: #dde2e8;
+  --ui-panel: #f7f8fa;
+  --ui-blue: #3d73f1;
+  background: #f4f6f8;
+  font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+}
+.excel-app-shell .workspace,
+.excel-app-shell .workspace-main { background: #fff; }
+.excel-app-shell .spreadsheet-toolbar {
+  position: relative;
+  z-index: 30;
+  height: 54px;
+  min-height: 54px;
+  padding: 0 18px;
+  gap: 0;
+  flex-wrap: wrap;
+  align-content: center;
+  overflow: hidden;
+  overflow-y: hidden;
+  background: #fff;
+  border-bottom: 1px solid var(--ui-line);
+  box-shadow: 0 1px 0 rgba(18, 25, 38, 0.02);
+}
+.excel-app-shell .spreadsheet-toolbar::-webkit-scrollbar { display: none; }
+.excel-app-shell .toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: 0 0 auto;
+  padding-right: 5px;
+  border-right: 1px solid #e8ebef;
+}
+.excel-app-shell .toolbar-group:last-child { border-right: 0; padding-right: 0; }
+.excel-app-shell .toolbar-group.formatting-group { margin-left: 0; }
+.excel-app-shell .toolbar-group > button {
+  height: 28px;
+  min-width: auto;
+  padding: 0 5px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #38404a;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 28px;
+  white-space: nowrap;
+  transition: background .12s ease, color .12s ease, border-color .12s ease;
+}
+.excel-app-shell .toolbar-group > button:hover {
+  color: #1f2329;
+  background: #f1f4f8;
+  border-color: #e0e6ed;
+}
+.excel-app-shell .toolbar-group > button.active {
+  color: #245fd3;
+  background: #edf3ff;
+  border-color: #cddcff;
+}
+.excel-app-shell .toolbar-group > button:active { background: #e7edf5; }
+.excel-app-shell .toolbar-group > button > b,
+.excel-app-shell .toolbar-group > button > i,
+.excel-app-shell .toolbar-group > button > u { font-size: 14px; line-height: 1; }
+.excel-app-shell .toolbar-group > button > svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  flex: 0 0 auto;
+  stroke-width: 1.8;
+  color: #66758a;
+  vertical-align: -3px;
+}
+.excel-app-shell .toolbar-group > button:hover > svg,
+.excel-app-shell .toolbar-group > button.active > svg { color: currentColor; }
+.excel-app-shell .toolbar-group.formatting-group > button[title="加粗"],
+.excel-app-shell .toolbar-group.formatting-group > button[title="斜体"],
+.excel-app-shell .toolbar-group.formatting-group > button[title="下划线"] { width: 28px; padding: 0; }
+.excel-app-shell .toolbar-group.formatting-group > button[title="加粗"] > svg,
+.excel-app-shell .toolbar-group.formatting-group > button[title="斜体"] > svg,
+.excel-app-shell .toolbar-group.formatting-group > button[title="下划线"] > svg { margin: 0; }
+.excel-app-shell .spreadsheet-toolbar select {
+  height: 30px;
+  min-width: 58px;
+  padding: 0 8px;
+  border: 1px solid #dce2e9;
+  border-radius: 4px;
+  background: #fff;
+  color: #38404a;
+  font-size: 12px;
+  outline: 0;
+}
+.excel-app-shell .spreadsheet-toolbar select:focus { border-color: #9bbaff; box-shadow: 0 0 0 2px rgba(61, 115, 241, .12); }
+.excel-app-shell .formula-bar {
+  position: relative;
+  z-index: 20;
+  height: 38px;
+  min-height: 38px;
+  gap: 10px;
+  padding: 4px 14px;
+  border-bottom: 1px solid var(--ui-line);
+  background: #fbfcfd;
+}
+.excel-app-shell .formula-bar input {
+  height: 28px;
+  border: 1px solid #dce2e9;
+  border-radius: 4px;
+  color: #2b313a;
+  background: #fff;
+  font-size: 12px;
+}
+.excel-app-shell .formula-bar input:first-child { width: 76px; color: #596271; font-variant-numeric: tabular-nums; }
+.excel-app-shell .formula-bar input:last-child { border-color: transparent; background: transparent; font-size: 13px; }
+.excel-app-shell .formula-bar input:last-child:focus { border-color: #9bbaff; background: #fff; }
+.excel-app-shell .formula-content-input { border-color: transparent; background: transparent; font-size: 13px; }
+.excel-app-shell .formula-content-input:focus { border-color: #9bbaff; background: transparent; }
+.excel-app-shell .formula-divider { height: 20px; background: #dfe4ea; }
+.excel-app-shell .formula-fx { color: #748094; }
+.excel-app-shell .formula-name-box { flex: 0 0 76px; text-align: center; font-variant-numeric: tabular-nums; }
+.excel-app-shell .formula-content-input { flex: 1 1 auto; min-width: 0; }
+.excel-app-shell .formula-content-wrap { position: relative; flex: 1 1 auto; min-width: 0; height: 28px; }
+.excel-app-shell .formula-reference-preview {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 7px;
+  overflow: hidden;
+  white-space: pre;
+  pointer-events: none;
+  color: #2b313a;
+  font-family: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  font-size: 13px;
+  line-height: 28px;
+}
+.excel-app-shell .formula-content-wrap .formula-content-input {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  color: #2b313a;
+  -webkit-text-fill-color: #2b313a;
+  caret-color: #2b313a;
+}
+.excel-app-shell .formula-content-wrap .formula-content-input:focus {
+  color: #2b313a;
+  -webkit-text-fill-color: #2b313a;
+}
+.excel-app-shell .formula-content-wrap .formula-content-input.has-formula-references,
+.excel-app-shell .formula-content-wrap .formula-content-input.has-formula-references:focus {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background: transparent;
+}
+.excel-app-shell .cell-formula-wrap {
+  width: 100%;
+  height: 100%;
+}
+.excel-app-shell .cell-formula-wrap .formula-reference-preview {
+  /* Match .editable-cell input's horizontal padding.  The preview is only
+     visual; the real input owns the caret, so both text runs must share the
+     exact same origin or the caret appears to drift between characters. */
+  padding: 0 calc(9px * var(--sheet-zoom, 1));
+  line-height: 29px;
+  font-size: calc(12px * var(--sheet-zoom, 1));
+}
+.excel-app-shell .cell-formula-wrap .formula-editor-input {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  color: #2b313a;
+  -webkit-text-fill-color: #2b313a;
+  caret-color: #2b313a;
+  background: transparent;
+}
+.excel-app-shell .cell-formula-wrap .formula-editor-input.has-formula-references {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+.excel-app-shell .formula-suggestions {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 112px;
+  z-index: 80;
+  width: 220px;
+  max-height: 260px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  touch-action: pan-y;
+  padding: 6px;
+  border: 1px solid #d9dee7;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(31, 42, 61, .16);
+}
+.excel-app-shell .formula-suggestions button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 30px;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #2d3541;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.excel-app-shell .formula-suggestions button:hover,
+.excel-app-shell .formula-suggestions button:focus-visible { background: #f0f3f8; outline: 0; }
+.excel-app-shell .suggestion-fx { width: 20px; color: #3e4652; font: italic 600 15px/1 Georgia, "Times New Roman", serif; }
+.excel-app-shell .editable-cell { position: relative; }
+.excel-app-shell .editable-cell > .formula-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 220px;
+  z-index: 60;
+}
+.excel-app-shell .grid-cell.formula-reference-cell {
+  background: var(--formula-reference-fill) !important;
+  border-color: var(--formula-reference-color) !important;
+  box-shadow: inset 0 0 0 1px var(--formula-reference-color);
+}
+.excel-app-shell .formula-reference-overlay {
+  position: absolute;
+  z-index: 26;
+  box-sizing: border-box;
+  border: 2px solid var(--formula-reference-color, #2f6fed);
+  background: var(--formula-reference-fill, rgba(47, 111, 237, .14));
+  pointer-events: none;
+}
+.excel-app-shell .virtual-grid-shell { background: #fff; }
+.excel-app-shell .virtual-grid-canvas { background: #fff; }
+.excel-app-shell .virtual-grid-head { z-index: 20; }
+.excel-app-shell .grid-corner,
+.excel-app-shell .grid-col-head,
+.excel-app-shell .grid-row-head {
+  border-color: #dfe4ea;
+  background: #f7f8fa;
+  color: #687384;
+  font-size: calc(11px * var(--sheet-zoom, 1));
+  font-weight: 500;
+}
+.excel-app-shell .grid-col-head { background: #f5f7f9; }
+.excel-app-shell .grid-col-head span { color: #667287; font-size: calc(12px * var(--sheet-zoom, 1)); font-weight: 600; }
+.excel-app-shell .grid-col-head:hover,
+.excel-app-shell .grid-row-head:hover { background: #eef3fb; color: #3868c9; }
+.excel-app-shell .grid-col-head.selected,
+.excel-app-shell .grid-row-head.selected { background: #e9f0ff; color: #2e65d3; box-shadow: none; }
+.excel-app-shell .grid-col-head.selected { border-bottom-color: #dfe4ea; }
+.excel-app-shell .grid-cell { border-color: #e5e9ee; }
+.excel-app-shell .grid-cell,
+.excel-app-shell .grid-row-head { border-color: #e5e9ee; }
+.excel-app-shell .grid-cell .editable-cell > button {
+  padding: 0 9px;
+  color: #303741;
+  font-size: calc(13px * var(--sheet-zoom, 1));
+  font-weight: 400;
+  line-height: 1.35;
+}
+.excel-app-shell .format-color-red .editable-cell > button { color: #c8272d !important; }
+.excel-app-shell .format-color-blue .editable-cell > button { color: #195cc9 !important; }
+.excel-app-shell .format-color-green .editable-cell > button { color: #167747 !important; }
+.excel-app-shell .grid-cell .editable-cell > button:hover { background: rgba(61, 115, 241, .025); }
+.excel-app-shell .grid-cell .editable-cell > button:hover { background: transparent; }
+.excel-app-shell .format-fill-yellow .editable-cell:hover:not(.is-editing) { background: #fff8cf; }
+.excel-app-shell .format-fill-blue .editable-cell:hover:not(.is-editing) { background: #e7f0ff; }
+.excel-app-shell .format-fill-green .editable-cell:hover:not(.is-editing) { background: #e3f5eb; }
+.excel-app-shell .format-fill-rose .editable-cell:hover:not(.is-editing) { background: #fae8ed; }
+.excel-app-shell .format-fill-yellow .editable-cell:hover:not(.is-editing) > button,
+.excel-app-shell .format-fill-blue .editable-cell:hover:not(.is-editing) > button,
+.excel-app-shell .format-fill-green .editable-cell:hover:not(.is-editing) > button,
+.excel-app-shell .format-fill-rose .editable-cell:hover:not(.is-editing) > button { background: transparent; }
+.excel-app-shell .editable-cell.is-selected { background: rgba(61, 115, 241, .11); }
+.excel-app-shell .editable-cell.is-active-cell::before { display: none; }
+.excel-app-shell .format-fill-yellow .editable-cell.is-selected { background: linear-gradient(rgba(61, 115, 241, .13), rgba(61, 115, 241, .13)), #fff8cf; }
+.excel-app-shell .format-fill-blue .editable-cell.is-selected { background: linear-gradient(rgba(61, 115, 241, .13), rgba(61, 115, 241, .13)), #e7f0ff; }
+.excel-app-shell .format-fill-green .editable-cell.is-selected { background: linear-gradient(rgba(61, 115, 241, .13), rgba(61, 115, 241, .13)), #e3f5eb; }
+.excel-app-shell .format-fill-rose .editable-cell.is-selected { background: linear-gradient(rgba(61, 115, 241, .13), rgba(61, 115, 241, .13)), #fae8ed; }
+.excel-app-shell .grid-cell-frozen { box-shadow: 1px 0 0 #cbd5e1; }
+.excel-app-shell .grid-row-frozen { box-shadow: 0 1px 0 #cbd5e1; }
+.excel-app-shell .grid-cell-frozen-row { box-shadow: inset 0 -1px 0 #cbd5e1; }
+.excel-app-shell .search-match .editable-cell { background: #fff4bf; }
+.excel-app-shell .search-match .editable-cell.is-selected { background: #eaf1ff; }
+.excel-app-shell .sheet-tabs {
+  height: 36px;
+  min-height: 36px;
+  gap: 0;
+  padding: 0 14px;
+  border-top: 1px solid var(--ui-line);
+  background: #fbfcfd;
+  color: #697384;
+  font-size: 12px;
+}
+.excel-app-shell .sheet-tabs button {
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+.excel-app-shell .sheet-tabs button:hover { background: #edf1f6; color: #2f3640; }
+.excel-app-shell .sheet-add-button { width: 28px; padding: 0 !important; display: grid; place-items: center; }
+.excel-app-shell .sheet-add-button svg { width: 15px; height: 15px; stroke-width: 1.8; }
+.excel-app-shell .sheet-tab { height: 36px !important; padding: 0 12px !important; border-radius: 0 !important; }
+.excel-app-shell .sheet-tab.active { color: #2464d7; background: #fff; border-bottom-color: #3d73f1 !important; font-weight: 600; }
+.excel-app-shell .sheet-statistics {
+  height: 25px;
+  min-height: 25px;
+  padding: 0 16px;
+  border-top: 1px solid #e4e8ed;
+  background: #f7f8fa;
+  color: #657080;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Spreadsheet-style border rendering:
+ * - Cell borders are the persisted format (the .format-border rule above).
+ * - Selection is one independent overlay, never a second cell border.
+ * - Hover changes only the cell background and cannot win a stacking contest
+ *   against the selection outline.
+ */
+.excel-app-shell .virtual-grid-body { isolation: isolate; }
+.excel-app-shell .grid-selection-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  pointer-events: none;
+}
+.excel-app-shell .selection-range-overlay {
+  position: absolute;
+  z-index: 0;
+  box-sizing: border-box;
+  border: 2px solid #3d73f1;
+  background: transparent;
+  pointer-events: none;
+}
+.excel-app-shell .grid-cell.cell-selected,
+.excel-app-shell .grid-cell.cell-active,
+.excel-app-shell .grid-cell.cell-active.format-border {
+  border: 1px solid #e5e9ee;
+  outline: none !important;
+  box-shadow: none !important;
+}
+/* A selection replaces the persisted dark border visually.  The border
+   format remains stored on the cell, but it must not be painted underneath
+   the blue selection frame and create doubled or uneven edges. */
+.excel-app-shell .grid-cell.cell-selected.format-border,
+.excel-app-shell .grid-cell.cell-selected.format-border:hover {
+  border: 1px solid #e5e9ee;
+  box-shadow: none !important;
+}
+.excel-app-shell .grid-cell.cell-selected,
+.excel-app-shell .grid-cell.cell-active,
+.excel-app-shell .grid-cell.format-border {
+  z-index: auto !important;
+}
+.excel-app-shell .grid-cell.cell-selected .editable-cell.is-selected,
+.excel-app-shell .grid-cell.cell-active .editable-cell.is-selected {
+  background: rgba(61, 115, 241, .11) !important;
+}
+.excel-app-shell .fill-preview-overlay,
+.excel-app-shell .formula-reference-overlay { z-index: 110; }
+.excel-app-shell .fill-handle { z-index: 120; }
+/* Keep the formula bar above the grid and the workbook tabs at the bottom.
+   The workspace is a vertical flex layout, so this also remains stable while
+   the grid grows or the browser viewport changes. */
+.excel-app-shell .formula-bar { order: 1; }
+.excel-app-shell .excel-table-card { order: 2; }
+.excel-app-shell .sheet-tabs { order: 3; }
+.excel-app-shell .sheet-statistics { order: 4; }
+.format-popover,
+.format-panel,
+.find-panel,
+.document-menu {
+  position: absolute;
+  z-index: 60;
+  border: 1px solid #dce3eb;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .98);
+  box-shadow: 0 12px 32px rgba(23, 32, 49, .16);
+  color: #313944;
+}
+.format-popover {
+  top: 48px;
+  left: 330px;
+  width: 188px;
+  padding: 10px;
+}
+.format-popover > span { display: block; margin-bottom: 9px; color: #697384; font-size: 12px; }
+.color-swatches { display: flex; gap: 7px; }
+.color-swatches .swatch { width: 22px; height: 22px; padding: 0; border: 1px solid #d5dbe4; border-radius: 50%; }
+.swatch-none, .swatch-default { background: #fff; }
+.swatch-yellow { background: #ffe98a; }
+.swatch-blue { background: #9ec5ff; }
+.swatch-green { background: #9cdbb8; }
+.swatch-rose { background: #f5b7c8; }
+.swatch-red { background: #d6474d; }
+.format-panel {
+  top: 50px;
+  left: clamp(360px, 60vw, 1200px);
+  right: auto;
+  width: 248px;
+  padding: 13px;
+}
+.format-panel > div:first-child { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.format-panel strong { font-size: 13px; font-weight: 650; }
+.format-panel > div button,
+.find-panel .panel-close {
+  border: 0;
+  background: transparent;
+  color: #6d7683;
+  font-size: 19px;
+  line-height: 1;
+}
+.find-panel .panel-close {
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background var(--duration-fast, 150ms) var(--ease-soft),
+    color var(--duration-fast, 150ms) var(--ease-soft),
+    transform 180ms var(--ease-spring);
+}
+.find-panel .panel-close:hover {
+  border-color: transparent;
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.find-panel .panel-close:active { transform: scale(.975); background: var(--surface-active); color: var(--text); }
+.find-panel .panel-close svg { width: 16px; height: 16px; stroke-width: 2; }
+.format-panel > p { margin: -4px 0 9px; color: #7a8492; font-size: 12px; }
+.number-format-list { display: grid; gap: 3px; }
+.number-format-list button {
+  display: grid;
+  grid-template-columns: 62px 1fr;
+  align-items: center;
+  min-height: 39px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: #3a4553;
+  text-align: left;
+}
+.number-format-list button:hover { border-color: #d6e1f5; background: #f3f7ff; }
+.number-format-list button.active {
+  border-color: #cddcff;
+  border-radius: 4px;
+  background: #edf3ff;
+  color: #245fd3;
+}
+.number-format-list b { font-size: 13px; font-weight: 600; }
+.number-format-list span { color: #788393; font-size: 12px; }
+.format-panel label { display: grid; grid-template-columns: 76px 1fr; align-items: center; gap: 8px; margin: 8px 0; color: #667080; font-size: 12px; }
+.format-panel select,
+.find-panel input { height: 29px; border: 1px solid #dbe2ea; border-radius: 4px; padding: 0 8px; outline: 0; background: #fff; color: #2d3641; font-size: 12px; }
+.format-panel select:focus,
+.find-panel input:focus { border-color: #93b4fb; box-shadow: 0 0 0 2px rgba(61, 115, 241, .12); }
+.format-panel .format-reset { width: 100%; height: 30px; margin-top: 8px; border: 1px solid #dce3eb; border-radius: 4px; background: #f8fafc; color: #4a5665; font-size: 12px; }
+.find-panel {
+  top: 58px;
+  right: 16px;
+  display: grid;
+  grid-template-columns: 156px 156px auto auto auto auto auto;
+  align-items: center;
+  gap: 7px;
+  padding: 9px;
+}
+.find-panel span { min-width: 66px; color: #7a8492; font-size: 11px; white-space: nowrap; }
+.find-panel > button:not(.panel-close) { height: 29px; padding: 0 8px; border: 1px solid #dce3eb; border-radius: 4px; background: #fff; color: #465261; font-size: 12px; white-space: nowrap; }
+.find-panel > button:not(.panel-close):hover { background: #edf3ff; border-color: #cddcff; color: #245fd3; }
+.document-menu { top: 48px; right: 112px; display: grid; min-width: 155px; padding: 6px; }
+.document-menu button { height: 31px; border: 0; border-radius: 4px; background: transparent; text-align: left; padding: 0 9px; color: #344050; font-size: 12px; }
+.document-menu button:hover { background: #eef3fb; color: #245fd3; }
+
+/* Spreadsheet context menu: compact Excel-like typography and stable scrolling. */
+.excel-app-shell .context-menu {
+  width: 248px;
+  max-height: min(560px, calc(100vh - 24px));
+  overflow-y: auto;
+  padding: 8px;
+  border: 1px solid #dce3eb;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 16px 38px rgba(23, 32, 49, .18);
+  color: #344050;
+  font-size: 12px;
+}
+.excel-app-shell .context-menu-title { padding: 6px 8px 9px; border-bottom: 1px solid #edf0f3; }
+.excel-app-shell .context-menu-title span { color: #8a94a3; font-size: 11px; }
+.excel-app-shell .context-menu-title strong { color: #344050; font-size: 12px; font-weight: 650; }
+.excel-app-shell .context-menu > button { min-height: 34px; padding: 0 9px; border: 0; border-radius: 5px; display: flex; align-items: center; gap: 8px; color: #3c4653; font-size: 12px; }
+.excel-app-shell .context-menu > button:hover { background: #eef3fb; color: #245fd3; }
+.excel-app-shell .context-menu .menu-icon { width: 20px; color: #778394; font-size: 14px; text-align: center; }
+.excel-app-shell .context-menu kbd { margin-left: auto; padding: 2px 5px; border: 1px solid #e1e6ed; border-radius: 4px; background: #f7f8fa; color: #8a94a3; font-size: 10px; }
+.excel-app-shell .context-menu-separator { margin: 6px 4px; background: #edf0f3; }
+.excel-app-shell .context-menu-meta { margin: 6px 4px 2px; padding: 8px 6px 2px; border-top: 1px solid #edf0f3; font-size: 10px; }
+.excel-app-shell .find-panel { display: flex; align-items: center; gap: 7px; }
+.excel-app-shell .find-panel input { width: 190px; flex: 0 0 190px; }
+.excel-app-shell .find-panel span { flex: 0 0 auto; }
+.excel-app-shell .find-panel .panel-close { margin-left: auto; flex: 0 0 29px; width: 29px; height: 29px; }
+@media (max-width: 1480px) {
+  .excel-app-shell .spreadsheet-toolbar {
+    height: 84px;
+    min-height: 84px;
+    flex-wrap: wrap;
+    align-content: center;
+    column-gap: 8px;
+    row-gap: 2px;
+    overflow-y: hidden;
+  }
+  .format-popover { top: 78px; }
+  .format-panel { top: 86px; }
+  .find-panel { top: 90px; }
+}
+@media (max-width: 960px) {
+  .excel-app-shell .spreadsheet-toolbar { padding: 0 10px; }
+  .find-panel { left: 10px; right: 10px; grid-template-columns: 1fr 1fr; }
+  .find-panel span { display: none; }
+  .format-panel { right: 10px; }
+}
+
+/* Final toolbar polish: compact Excel-like controls with clear hierarchy. */
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+  height: 112px;
+  min-height: 112px;
+  padding: 0 14px;
+  gap: 3px;
+  align-items: center;
+  align-content: space-evenly;
+  flex-wrap: wrap;
+  overflow: visible;
+  background: #f8fafc;
+  border-bottom: 1px solid #d9e0e8;
+  box-shadow: 0 1px 0 rgba(20, 35, 55, .03);
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group {
+  min-width: 0;
+  height: 36px;
+  padding: 2px 8px 2px 2px;
+  margin-right: 3px;
+  gap: 2px;
+  border-right: 1px solid #dfe5ec;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group:last-child {
+  padding-right: 0;
+  margin-right: 0;
+  border-right: 0;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #344256;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 30px;
+  letter-spacing: 0;
+  transition: background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: #344256;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 30px;
+  white-space: nowrap !important;
+  word-break: keep-all;
+  transition: background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button > span {
+  white-space: nowrap !important;
+  word-break: keep-all;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button:hover {
+  border-color: #d4e0f4;
+  background: #eef4ff;
+  color: #235fc9;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button:hover {
+  border-color: #d4e0f4;
+  background: #eef4ff;
+  color: #235fc9;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button.active {
+  border-color: #b9cef5;
+  background: #e4edff;
+  color: #1e5ecb;
+  box-shadow: inset 0 0 0 1px rgba(47, 105, 215, .06);
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button.active {
+  border-color: #b9cef5;
+  background: #e4edff;
+  color: #1e5ecb;
+  box-shadow: inset 0 0 0 1px rgba(47, 105, 215, .06);
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button:focus-visible,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar select:focus-visible {
+  outline: 2px solid rgba(47, 105, 215, .32);
+  outline-offset: 1px;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button > svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin: 0;
+  color: #607189;
+  stroke-width: 1.85;
+  vertical-align: 0;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button > svg {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: 0 0 auto;
+  color: #607189;
+  stroke-width: 1.85;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button:hover > svg,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button.active > svg {
+  color: currentColor;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button:hover > svg,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button.active > svg {
+  color: currentColor;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar select {
+  width: 56px;
+  height: 32px;
+  margin: 0 3px 0 0;
+  padding: 0 6px;
+  border: 1px solid #cfd8e4;
+  border-radius: 6px;
+  background: #fff;
+  color: #2f3d51;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .font-family-select {
+  width: 152px;
+  min-width: 152px;
+  text-align: left;
+  font-weight: 500;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .formatting-group:first-of-type {
+  flex-wrap: wrap;
+}
+.excel-app-shell .format-popover {
+  top: calc(100% + 8px);
+  left: 0;
+  width: 214px;
+  padding: 12px;
+  border: 1px solid #d4dce8;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(31, 48, 75, .18);
+}
+.excel-app-shell .toolbar-menu-anchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  flex: 0 0 auto;
+  overflow: visible;
+}
+.excel-app-shell .format-popover > span {
+  margin-bottom: 10px;
+  color: #596a80;
+  font-size: 12px;
+  font-weight: 600;
+}
+.excel-app-shell .color-palette {
+  /* 10 swatches × 20px + 9 gaps × 5px = 245px; keep both side margins equal. */
+  width: 275px;
+  padding: 13px 14px 12px;
+  color: #3a4657;
+  box-shadow: none;
+  border: 1px solid #d7dee8;
+  border-radius: 6px;
+}
+.excel-app-shell .color-palette strong { display: block; margin-bottom: 11px; font-size: 13px; font-weight: 650; }
+.excel-app-shell .palette-section-label { display: block; margin: 8px 0 6px; color: #7b8796; font-size: 11px; }
+.excel-app-shell .color-palette .palette-grid {
+  display: grid !important;
+  grid-template-columns: repeat(10, 20px) !important;
+  grid-auto-rows: 20px !important;
+  gap: 5px !important;
+  width: max-content !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+}
+.excel-app-shell .color-palette .palette-grid.palette-standard { grid-template-columns: repeat(10, 20px) !important; }
+.excel-app-shell .color-palette .palette-grid.palette-recent { grid-template-columns: repeat(10, 20px) !important; }
+.excel-app-shell .palette-swatch {
+  display: block !important;
+  width: 20px !important;
+  min-width: 20px !important;
+  height: 20px !important;
+  min-height: 20px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(45, 58, 75, .24) !important;
+  border-radius: 2px !important;
+  box-shadow: none !important;
+  background-image: none !important;
+  cursor: pointer;
+}
+.excel-app-shell .palette-swatch:hover { outline: 2px solid #3d73f1; outline-offset: 1px; }
+.excel-app-shell .palette-none { background: linear-gradient(135deg, #fff 44%, #d33 46%, #d33 54%, #fff 56%); }
+.excel-app-shell .palette-none-action {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  width: 100%;
+  box-sizing: border-box;
+  gap: 7px;
+  height: 32px;
+  margin-top: 11px;
+  padding: 0 4px;
+  border: 0;
+  border-top: 1px solid #edf0f4;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #4e5c6d;
+  font-size: 12px;
+  text-align: left;
+  transition: background var(--duration-fast, 150ms) var(--ease-soft),
+    border-color var(--duration-fast, 150ms) var(--ease-soft),
+    color var(--duration-fast, 150ms) var(--ease-soft);
+  cursor: pointer;
+}
+.excel-app-shell .palette-none-action .palette-none { display: inline-block; width: 16px; height: 16px; border: 1px solid #cfd8e4; border-radius: 3px; }
+.excel-app-shell .palette-none-action:hover {
+  background: var(--surface-hover);
+  border-color: transparent;
+  color: var(--text);
+}
+.excel-app-shell .color-swatches { gap: 8px; flex-wrap: wrap; }
+.excel-app-shell .color-swatches .swatch {
+  width: 26px;
+  height: 26px;
+  border: 1px solid #cfd8e4;
+  box-shadow: 0 1px 2px rgba(20, 35, 55, .08);
+}
+@media (max-width: 1480px) {
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+    height: 112px;
+    min-height: 112px;
+    flex-wrap: wrap;
+    column-gap: 3px;
+    row-gap: 4px;
+  }
+}
+
+/* Compact command strip: labels only where they add meaning; other commands use icons. */
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+  /* Keep every toolbar flyout above the frozen grid overlays.  The frozen
+     column/row headers intentionally sit in their own stacking layer, so the
+     toolbar needs a higher layer than that grid (not just a higher z-index on
+     the menu itself). */
+  position: relative;
+  z-index: 100;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  box-sizing: border-box;
+  height: 52px;
+  min-height: 52px;
+  flex-wrap: nowrap;
+  align-content: center;
+  align-items: center;
+  justify-content: flex-start !important;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: none;
+  gap: 3px;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar::-webkit-scrollbar {
+  display: none;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar > .toolbar-group {
+  flex: 0 0 auto;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group {
+  height: 36px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button {
+  height: 32px;
+  line-height: 30px;
+}
+
+/* GridBook UI contract: neutral controls, 10px corners, and the same
+   surface/hover/elevation language used by the main application. */
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+  background: var(--surface);
+  border-bottom-color: var(--line);
+  box-shadow: none;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group {
+  border-right-color: var(--line);
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button {
+  border-radius: var(--radius-sm);
+  color: var(--soft-text);
+  transition: background var(--duration-fast, 150ms) var(--ease-soft),
+    color var(--duration-fast, 150ms) var(--ease-soft),
+    border-color var(--duration-fast, 150ms) var(--ease-soft),
+    transform 180ms var(--ease-spring);
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button:hover,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button:hover {
+  border-color: transparent;
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button:active:not(:disabled),
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button:active:not(:disabled) {
+  transform: scale(.975);
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button.active,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button.active {
+  border-color: transparent;
+  background: var(--surface-active);
+  color: var(--text);
+  box-shadow: none;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar select {
+  height: 32px;
+  border-color: var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  transition: background var(--duration-fast, 150ms) var(--ease-soft),
+    border-color var(--duration-fast, 150ms) var(--ease-soft),
+    box-shadow var(--duration-fast, 150ms) var(--ease-soft);
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar select:hover {
+  border-color: var(--line-strong);
+  background: var(--surface-hover);
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar select:focus {
+  border-color: color-mix(in srgb, var(--text) 32%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text) 6%, transparent);
+  outline: 0;
+}
+
+/* GridBook custom-select treatment. Native select popovers inherit the
+   browser's platform styling, so the toolbar uses the same hand-built
+   trigger/options pattern as the main application. */
+.excel-app-shell .toolbar-select {
+  position: relative;
+  z-index: 120;
+  display: inline-flex;
+  width: 100px;
+  min-width: 100px;
+  height: 32px;
+}
+.excel-app-shell .toolbar-select.font-family-select {
+  width: 150px;
+  min-width: 150px;
+}
+.excel-app-shell .toolbar-select-trigger {
+  width: 100%;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 9px 0 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  outline: none;
+  transition: background var(--duration-fast, 150ms) var(--ease-soft),
+    border-color var(--duration-fast, 150ms) var(--ease-soft),
+    box-shadow var(--duration-fast, 150ms) var(--ease-soft),
+    transform 180ms var(--ease-spring);
+}
+.excel-app-shell .toolbar-select-trigger:hover {
+  border-color: var(--line-strong);
+  background: color-mix(in srgb, var(--surface) 96%, var(--text));
+}
+.excel-app-shell .toolbar-select-trigger:active { transform: scale(.975); }
+.excel-app-shell .toolbar-select-trigger:focus-visible,
+.excel-app-shell .toolbar-select.is-open .toolbar-select-trigger {
+  border-color: color-mix(in srgb, var(--text) 32%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--text) 6%, transparent);
+}
+.excel-app-shell .toolbar-select-trigger > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.excel-app-shell .toolbar-select-trigger > svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  color: var(--muted);
+  transition: transform 180ms var(--ease-spring);
+}
+.excel-app-shell .toolbar-select.is-open .toolbar-select-trigger > svg { transform: rotate(180deg); }
+.excel-app-shell .toolbar-select-menu {
+  position: absolute;
+  z-index: 1000;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  max-height: 240px;
+  padding: 4px;
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  transform-origin: top center;
+  animation: select-in 180ms var(--ease-spring);
+}
+.excel-app-shell .toolbar-select.font-family-select .toolbar-select-menu {
+  min-width: 180px;
+}
+.excel-app-shell .toolbar-select-option {
+  width: 100%;
+  min-height: 34px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  color: var(--text);
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--duration-fast, 150ms) var(--ease-soft), color var(--duration-fast, 150ms) var(--ease-soft);
+}
+.excel-app-shell .toolbar-select-option:hover,
+.excel-app-shell .toolbar-select-option[aria-selected="true"] {
+  background: var(--surface-soft);
+}
+.excel-app-shell .toolbar-select-option[aria-selected="true"] {
+  color: var(--text);
+  font-weight: 550;
+}
+
+/* Match GridBook's hover-label treatment for icon-only commands. */
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button[aria-label],
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button[aria-label] {
+  position: relative;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button[aria-label]::after,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button[aria-label]::after {
+  position: absolute;
+  z-index: 220;
+  top: calc(100% + 7px);
+  left: 50%;
+  height: 28px;
+  min-height: 0;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  color: var(--soft-text);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  content: attr(aria-label);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -3px);
+  transition: opacity 150ms var(--ease-soft), transform 180ms var(--ease-spring);
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button[aria-label]:hover::after,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button[aria-label]:hover::after,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button[aria-label]:focus-visible::after,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group .toolbar-menu-anchor > button[aria-label]:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Shared GridBook flyout geometry for palettes, formatting, and menus. */
+.excel-app-shell .format-popover,
+.excel-app-shell .format-panel,
+.excel-app-shell .find-panel,
+.excel-app-shell .document-menu,
+.excel-app-shell .context-menu {
+  border-color: var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+}
+/* Tool flyouts are anchored to the button that opened them. Their coordinates
+   are supplied from the button's viewport rect so they remain adjacent even
+   when the toolbar wraps or the viewport is resized. */
+.excel-app-shell .format-panel,
+.excel-app-shell .find-panel {
+  position: fixed;
+  top: auto;
+  right: auto;
+  left: auto;
+  margin: 0;
+  box-sizing: border-box;
+  max-width: calc(100vw - 20px);
+}
+.excel-app-shell .find-panel {
+  width: max-content;
+  min-width: 0;
+  max-width: calc(100vw - 20px);
+}
+.excel-app-shell .color-palette {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-float);
+}
+.excel-app-shell .document-menu button,
+.excel-app-shell .find-panel > button:not(.panel-close),
+.excel-app-shell .format-panel .format-reset {
+  border-radius: var(--radius-sm);
+}
+.excel-app-shell .document-menu button:hover,
+.excel-app-shell .find-panel > button:not(.panel-close):hover,
+.excel-app-shell .format-panel .format-reset:hover {
+  background: var(--surface-hover);
+  border-color: transparent;
+  color: var(--text);
+}
+.excel-app-shell .context-menu > button:hover,
+.excel-app-shell .number-format-list button:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+/* Frozen panes are rendered as two lightweight overlays instead of being
+   carried inside the virtualized scrolling canvas. This keeps the column
+   labels pinned to the top and the row numbers pinned to the left without
+   waiting for a React reflow after a wheel/trackpad event. */
+.excel-app-shell .virtual-grid-fixed-head {
+  position: absolute;
+  z-index: 40;
+  top: 0;
+  /* Keep the native vertical scrollbar outside the frozen header layer. */
+  right: 9px;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--surface);
+}
+.excel-app-shell .virtual-grid-fixed-head .grid-corner,
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head {
+  top: 0;
+  pointer-events: auto;
+}
+.excel-app-shell .virtual-grid-fixed-head .grid-corner {
+  z-index: 15;
+}
+.excel-app-shell .virtual-grid-fixed-rows {
+  position: absolute;
+  z-index: 39;
+  /* Leave the native horizontal scrollbar uncovered.  The frozen row rail
+     is opaque, so extending it to the scroll container's bottom used to
+     paint over the left end of the scrollbar thumb. */
+  bottom: 9px;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--surface);
+}
+.excel-app-shell .virtual-grid-fixed-rows .grid-row-head {
+  top: auto;
+  left: 0;
+  pointer-events: auto;
+}
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head,
+.excel-app-shell .virtual-grid-fixed-rows .grid-row-head {
+  box-sizing: border-box;
+  border-color: #e5e9ee;
+  background: #f5f7f9;
+}
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head:hover,
+.excel-app-shell .virtual-grid-fixed-rows .grid-row-head:hover {
+  background: #eef3fb;
+  color: #3868c9;
+}
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head.selected,
+.excel-app-shell .virtual-grid-fixed-rows .grid-row-head.selected {
+  background: #e9f0ff;
+  color: #2e65d3;
+}
+.excel-app-shell .virtual-grid-scroll {
+  position: relative;
+  z-index: 1;
+}
+
+/* Reserve the fixed rails outside the native scroll viewport.  The browser
+   scrollbar now starts at the right edge of the row-number rail and below the
+   column header, so neither scrollbar thumb paints over those controls. */
+.excel-app-shell .virtual-grid-scroll {
+  position: absolute;
+  top: 32px;
+  right: 0;
+  bottom: 0;
+  left: 46px;
+  width: auto;
+  height: auto;
+}
+.excel-app-shell .virtual-grid-fixed-head {
+  right: 0;
+  left: 0;
+  height: 32px;
+  display: block !important;
+  visibility: visible !important;
+}
+.excel-app-shell .virtual-grid-fixed-rows {
+  top: 32px;
+  right: auto;
+  bottom: 0;
+  left: 0;
+  width: 46px;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Keep the two spreadsheet rails above the native scroll viewport.  The
+   viewport is intentionally inset by the rail sizes, so the scrollbar never
+   paints over row numbers or column letters. */
+.excel-app-shell .virtual-grid-shell {
+  isolation: isolate;
+}
+.excel-app-shell .virtual-grid-scroll {
+  z-index: 1;
+}
+.excel-app-shell .virtual-grid-fixed-head { z-index: 40; }
+.excel-app-shell .virtual-grid-fixed-rows { z-index: 39; }
+
+/* Toolbar popovers must paint over the sheet.  A horizontal overflow on the
+   toolbar also creates an implicit vertical clipping context (even when
+   overflow-y is set to visible), which used to cut off the font/size menus at
+   the grid boundary.  Keep the command strip in the top stacking layer and
+   let its flyouts escape into the workbook area. */
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+  position: relative;
+  z-index: 1000;
+  overflow: visible !important;
+  isolation: isolate;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-menu-anchor,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-select {
+  position: relative;
+  z-index: 1001;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-select.is-open {
+  z-index: 1003;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-select-menu,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .format-popover,
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar .color-palette {
+  z-index: 10000 !important;
+}
+.excel-app-shell .format-panel,
+.excel-app-shell .find-panel,
+.excel-app-shell .document-menu {
+  z-index: 10000 !important;
+}
+@media (max-width: 760px) {
+  .excel-app-shell .find-panel {
+    width: calc(100vw - 20px);
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .excel-app-shell .find-panel input {
+    min-width: 0;
+    width: auto;
+    flex: 1 1 145px;
+  }
+  .excel-app-shell .find-panel span { display: none; }
+}
+
+/* Context menu: GridBook flyout treatment with Lucide-sized controls and
+   viewport-safe positioning supplied by SpreadsheetContextMenu. */
+.excel-app-shell .context-menu {
+  width: 268px;
+  max-width: calc(100vw - 20px);
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: visible;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  color: var(--soft-text);
+  font-size: 13px;
+}
+.excel-app-shell .sheet-context-menu {
+  max-height: min(240px, calc(100vh - 20px));
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.excel-app-shell .context-menu-title { display: none; }
+.excel-app-shell .context-menu-title-copy {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.excel-app-shell .context-menu-title-copy svg {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+  stroke-width: 1.8;
+}
+.excel-app-shell .context-menu-title strong {
+  color: var(--soft-text);
+  font-size: 13px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+.excel-app-shell .context-menu-group-label {
+  padding: 7px 9px 3px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+}
+.excel-app-shell .context-menu > button {
+  width: 100%;
+  min-height: 34px;
+  height: 34px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  color: var(--soft-text);
+  background: transparent;
+  font-size: 13px;
+  line-height: 20px;
+  text-align: left;
+}
+.excel-app-shell .context-menu > button:hover,
+.excel-app-shell .context-menu > button:focus-visible {
+  outline: none;
+  color: var(--text);
+  background: var(--surface-hover);
+}
+.excel-app-shell .context-menu .clear-action:hover,
+.excel-app-shell .context-menu .clear-action:focus-visible {
+  color: var(--danger);
+  background: rgba(193, 63, 63, 0.08);
+}
+.excel-app-shell .context-menu .menu-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+.excel-app-shell .context-menu .menu-icon svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.8;
+}
+.excel-app-shell .context-menu > button:hover .menu-icon,
+.excel-app-shell .context-menu > button:focus-visible .menu-icon { color: var(--blue); }
+.excel-app-shell .context-menu .clear-action:hover .menu-icon,
+.excel-app-shell .context-menu .clear-action:focus-visible .menu-icon { color: var(--danger); }
+.excel-app-shell .context-menu kbd {
+  min-width: 30px;
+  padding: 2px 6px;
+  border: 0;
+  border-radius: 6px;
+  color: var(--muted);
+  background: transparent;
+  font-family: inherit;
+  font-size: 11px;
+  line-height: 16px;
+  text-align: center;
+  white-space: nowrap;
+}
+.excel-app-shell .context-menu-separator {
+  height: 1px;
+  margin: 6px 4px;
+  background: var(--line);
+}
+.excel-app-shell .context-menu-meta {
+  margin: 7px 4px 2px;
+  padding: 8px 6px 2px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 16px;
+}
+.excel-app-shell .context-menu-meta strong { color: var(--soft-text); font-weight: 600; }
+
+/* Floating workbook chrome -------------------------------------------------
+   Keep the command strip and the name/content editor visually independent
+   from the canvas.  Their width follows the controls instead of stretching
+   across the sheet, while the grid keeps all of its existing geometry. */
+.excel-app-shell .workspace-main {
+  background: #f4f6f8;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+  box-sizing: border-box;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  height: auto;
+  min-height: 50px;
+  margin: 12px auto 10px;
+  padding: 6px 10px;
+  align-items: center;
+  align-content: center;
+  justify-content: center !important;
+  flex-wrap: wrap;
+  gap: 3px;
+  border: 1px solid #dce3eb;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(28, 43, 64, .08);
+}
+.excel-app-shell .formula-bar {
+  box-sizing: border-box;
+  width: min(1200px, calc(100% - 32px));
+  height: 44px;
+  min-height: 44px;
+  margin: 0 auto 10px;
+  padding: 7px 10px;
+  border: 1px solid #dce3eb;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 7px 18px rgba(28, 43, 64, .06);
+}
+.excel-app-shell .formula-name-box {
+  flex-basis: 76px;
+  border-color: #d5dde7 !important;
+  border-radius: 6px !important;
+  background: #f8fafc !important;
+  font-weight: 600;
+}
+.excel-app-shell .formula-content-wrap {
+  height: 28px;
+  border-radius: 6px;
+  background: #fbfcfe;
+}
+.excel-app-shell .formula-content-input {
+  padding: 0 8px;
+  border-radius: 6px !important;
+}
+
+/* Row and column labels belong to the sheet canvas rather than a nested
+   header panel.  Keep the one-pixel grid separators for alignment. */
+.excel-app-shell .grid-corner,
+.excel-app-shell .grid-col-head,
+.excel-app-shell .grid-row-head {
+  background: #fff;
+  border-color: #e5e9ee;
+  box-shadow: none;
+}
+.excel-app-shell .grid-col-head:hover,
+.excel-app-shell .grid-row-head:hover {
+  background: #f4f7fb;
+}
+.excel-app-shell .grid-col-head.selected,
+.excel-app-shell .grid-row-head.selected {
+  background: #eaf1ff;
+}
+
+@media (max-width: 860px) {
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+    width: calc(100% - 20px);
+    max-width: none;
+    justify-content: flex-start !important;
+  }
+  .excel-app-shell .formula-bar {
+    width: calc(100% - 20px);
+  }
+}
+
+/* The formula row is only a full-width layout rail; the two editing surfaces
+   inside it are the actual cards. */
+.excel-app-shell .formula-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: none;
+  height: 48px;
+  min-height: 48px;
+  margin: 0;
+  padding: 7px 14px;
+  gap: 10px;
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+
+.excel-app-shell .formula-name-card,
+.excel-app-shell .formula-editor-card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: 34px;
+  border: 1px solid #dce3eb;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(28, 43, 64, .06);
+}
+
+.excel-app-shell .formula-name-card {
+  flex: 0 0 96px;
+  width: 96px;
+  padding: 0 8px;
+}
+
+.excel-app-shell .formula-name-card .formula-name-box {
+  width: 100%;
+  height: 30px;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 6px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.excel-app-shell .formula-editor-card {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 10px;
+}
+
+.excel-app-shell .formula-editor-card .formula-fx {
+  flex: 0 0 auto;
+  margin-inline: 2px 8px;
+}
+
+.excel-app-shell .formula-editor-card .formula-divider {
+  flex: 0 0 1px;
+  height: 20px;
+  margin-right: 8px;
+  background: #e5e9ee;
+}
+
+.excel-app-shell .formula-editor-card .formula-content-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  height: 30px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.excel-app-shell .formula-editor-card .formula-reference-preview {
+  padding-inline: 8px;
+  font-size: 13px;
+}
+
+.excel-app-shell .formula-editor-card .formula-content-input,
+.excel-app-shell .formula-editor-card .formula-content-input:focus {
+  border-color: transparent !important;
+  outline: none;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.excel-app-shell .formula-editor-card > .formula-suggestions {
+  left: 10px;
+  top: calc(100% + 5px);
+}
+
+/* Long values must stay readable in the formula bar.  Native text inputs
+   scroll horizontally while editing; the hover hint exposes the complete
+   value without changing the sheet's layout. */
+.excel-app-shell .formula-editor-card,
+.excel-app-shell .formula-editor-card .formula-content-wrap {
+  overflow: visible;
+}
+.excel-app-shell .formula-editor-card .formula-content-input {
+  box-sizing: border-box;
+  width: 100% !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-overflow: clip;
+  white-space: nowrap;
+  text-align: left !important;
+}
+.excel-app-shell .formula-full-value-hint {
+  position: absolute;
+  left: 48px;
+  right: 8px;
+  top: calc(100% + 6px);
+  z-index: 90;
+  display: block;
+  max-width: calc(100% - 56px);
+  max-height: 120px;
+  overflow: auto;
+  padding: 8px 10px;
+  border: 1px solid #d6dee9;
+  border-radius: 7px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(36, 51, 71, .16);
+  color: #2b313a;
+  font-size: 13px;
+  line-height: 20px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-2px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.excel-app-shell .formula-content-wrap:hover .formula-full-value-hint,
+.excel-app-shell .formula-content-wrap:focus-within .formula-full-value-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 860px) {
+  .excel-app-shell .formula-bar { padding-inline: 10px; }
+  .excel-app-shell .formula-name-card { flex-basis: 84px; width: 84px; }
+}
+
+/* Keep every upper editing surface on the exact same canvas tone as the
+   column-label cells. */
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar,
+.excel-app-shell .formula-bar,
+.excel-app-shell .grid-corner,
+.excel-app-shell .grid-col-head,
+.excel-app-shell .grid-row-head {
+  background: #f5f7f9;
+}
+
+/* The cards keep a white editing surface; only their surrounding rail uses
+   the column-header background. */
+.excel-app-shell .formula-name-card,
+.excel-app-shell .formula-editor-card {
+  background: #fff;
+}
+
+/* Single source of truth for the rail surrounding the two cards and the
+   frozen column-label strip.  The explicit fixed-head selectors avoid the
+   higher-specificity rule making the two surfaces drift apart. */
+.excel-app-shell {
+  --column-header-surface: #f5f7f9;
+}
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar,
+.excel-app-shell .formula-bar,
+.excel-app-shell .grid-corner,
+.excel-app-shell .grid-col-head,
+.excel-app-shell .grid-row-head,
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head,
+.excel-app-shell .virtual-grid-fixed-rows .grid-row-head {
+  background: var(--column-header-surface) !important;
+}
+
+.excel-app-shell .formula-name-card,
+.excel-app-shell .formula-editor-card {
+  background: #fff !important;
+}
+
+/* The command strip is also a card: keep its interior white while the rail
+   around it remains the shared column-header surface. */
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+  background: #fff !important;
+}
+
+/* Latest canvas alignment: keep the workbook chrome on the same surface as
+   the column-header row.  The name box and content editor remain two distinct
+   cards, while the formula row itself spans the complete workspace width. */
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar,
+.excel-app-shell .formula-bar,
+.excel-app-shell .grid-corner,
+.excel-app-shell .grid-col-head,
+.excel-app-shell .grid-row-head {
+  background: #fff;
+}
+
+.excel-app-shell .formula-bar {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 6px 14px;
+  gap: 8px;
+  border: 0;
+  border-bottom: 1px solid #e5e9ee;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.excel-app-shell .formula-name-box {
+  flex: 0 0 92px;
+  width: 92px;
+  height: 32px;
+  border: 1px solid #dce3eb !important;
+  border-radius: 8px !important;
+  background: #fff !important;
+  box-shadow: 0 1px 3px rgba(28, 43, 64, .06);
+}
+
+.excel-app-shell .formula-content-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  height: 32px;
+  border: 1px solid #dce3eb;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(28, 43, 64, .06);
+}
+
+.excel-app-shell .formula-content-input,
+.excel-app-shell .formula-content-input:focus,
+.excel-app-shell .formula-bar input:last-child:focus {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none;
+}
+
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+  border-bottom-color: #e5e9ee;
+}
+
+/* The workbook section is keyboard-focusable for grid shortcuts, but its
+   browser focus ring must not appear as a full-width blue rule above the
+   column headers.  Cell selection already has its own precise blue frame. */
+.excel-app-shell .excel-table-card:focus,
+.excel-app-shell .excel-table-card:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Keep the formula editor visually open to the sheet; its bottom rule reads
+   as an unwanted full-width hairline above the column headers. */
+.excel-app-shell .formula-bar {
+  border-bottom: 0 !important;
+}
+
+@media (max-width: 860px) {
+  .excel-app-shell .formula-bar {
+    padding-inline: 10px;
+  }
+  .excel-app-shell .formula-name-box {
+    flex-basis: 84px;
+    width: 84px;
+  }
+}
+
+/* Keep the command card and the two editor cards on a compact, consistent
+   vertical rhythm.  The rail remains visible, but the cards should read as
+   one adjacent editing cluster rather than three separated bands. */
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+  margin-top: 8px;
+  /* 5px rail gap + 3px formula-rail inset = the same 8px rhythm as the
+     toolbar's top margin. */
+  margin-bottom: 5px;
+}
+
+.excel-app-shell .formula-bar {
+  height: 40px;
+  min-height: 40px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  /* 3px rail inset + 5px outer gap = the shared 8px card rhythm. */
+  margin-bottom: 5px;
+}
+
+/* The three floating controls share one white editing surface.  Keep the
+   surrounding rail separate so the cards remain visually distinct without
+   introducing competing interior tints. */
+.excel-app-shell .spreadsheet-toolbar.excel-toolbar,
+.excel-app-shell .formula-name-card,
+.excel-app-shell .formula-editor-card {
+  background-color: #fff !important;
+  background-image: none !important;
+}
+
+/* WPS-style zoom controls live in the existing workbook status bar.  Keeping
+   them in the same bar avoids another floating card and leaves the grid at
+   full width. */
+.excel-app-shell .sheet-statistics {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  background: #fafbfd;
+  /* Keep the divider visible; the zoom button itself is sized to the
+     existing status-bar height so its hover surface stays below this line. */
+  border-top: 1px solid #e4e8ed !important;
+  box-shadow: none !important;
+}
+.excel-app-shell .sheet-statistics-values {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: #697586;
+  letter-spacing: .01em;
+}
+.excel-app-shell .sheet-statistics-values span + span {
+  position: relative;
+}
+.excel-app-shell .sheet-statistics-values span + span::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  top: 50%;
+  width: 1px;
+  height: 12px;
+  background: #dfe5ec;
+  transform: translateY(-50%);
+}
+.excel-app-shell .sheet-zoom-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: 24px;
+  margin-left: auto;
+  padding-left: 8px;
+  border-left: 0;
+  color: var(--soft-text);
+  font-variant-numeric: tabular-nums;
+}
+.excel-app-shell .sheet-zoom-value {
+  min-width: 40px;
+  color: #3f4b5c;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+}
+.excel-app-shell .sheet-zoom-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 24px;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 7px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--soft-text);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 22px;
+  letter-spacing: 0;
+  white-space: nowrap;
+  transition: background var(--duration-fast, 150ms) var(--ease-soft),
+    color var(--duration-fast, 150ms) var(--ease-soft),
+    border-color var(--duration-fast, 150ms) var(--ease-soft),
+    transform 180ms var(--ease-spring);
+}
+.excel-app-shell .sheet-zoom-controls button:hover {
+  border-color: transparent;
+  background: var(--surface-hover);
+  color: var(--text);
+}
+.excel-app-shell .sheet-zoom-controls button:active:not(:disabled) {
+  border-color: transparent;
+  background: var(--surface-active);
+  color: var(--text);
+  transform: scale(.975);
+}
+.excel-app-shell .sheet-zoom-controls button svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2;
+}
+.excel-app-shell .sheet-zoom-controls input[type="range"] {
+  --zoom-progress: 33.33%;
+  appearance: none;
+  /* Keep the thumb radius inside the button/status-bar bounds.  Native
+     range thumbs are centered on the track ends, so reserve 7px on each
+     side instead of letting the circle overhang the right edge. */
+  width: 76px;
+  height: 20px;
+  margin: 0 7px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.excel-app-shell .sheet-zoom-controls input[type="range"]::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #4b7ff0 0 var(--zoom-progress), #dfe5ed var(--zoom-progress) 100%);
+}
+.excel-app-shell .sheet-zoom-controls input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #4b7ff0;
+  box-shadow: 0 1px 4px rgba(43, 83, 150, .28), 0 0 0 1px rgba(75, 127, 240, .28);
+}
+.excel-app-shell .sheet-zoom-controls input[type="range"]::-moz-range-track {
+  height: 4px;
+  border-radius: 99px;
+  background: #dfe5ed;
+}
+.excel-app-shell .sheet-zoom-controls input[type="range"]::-moz-range-progress {
+  height: 4px;
+  border-radius: 99px;
+  background: #4b7ff0;
+}
+.excel-app-shell .sheet-zoom-controls input[type="range"]::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #4b7ff0;
+  box-shadow: 0 1px 4px rgba(43, 83, 150, .28), 0 0 0 1px rgba(75, 127, 240, .28);
+}
+.excel-app-shell .sheet-zoom-controls input[type="range"]:focus-visible {
+  outline: 2px solid rgba(75, 127, 240, .28);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* The zoom value controls the rendered sheet, not the toolbar typography.
+   Geometry is scaled in VirtualGrid; these inherited rules scale the cell
+   content that lives inside that geometry as well. */
+.excel-app-shell .virtual-grid-shell .grid-col-head span { font-size: calc(12px * var(--sheet-zoom, 1)); }
+.excel-app-shell .virtual-grid-shell .grid-row-head { font-size: calc(11px * var(--sheet-zoom, 1)); }
+
+/* V2 sparse / infinite workbook.  The grid owns one native scroll surface;
+   frozen headers are compositor-aligned overlays, never nested scrollers. */
+.infinite-workbook-app { user-select: none; }
+.infinite-workbook-loading { height: 100%; display: grid; place-items: center; color: #667085; background: #fff; font-size: 14px; }
+.infinite-workbook-app .workspace-main { min-height: 0; }
+.infinite-workbook-app .infinite-toolbar { flex: 0 0 48px; }
+.infinite-workbook-app .infinite-toolbar select { height: 28px; min-width: 58px; border: 1px solid #dfe3e8; border-radius: 4px; background: #fff; color: #354052; font: 12px/1 inherit; padding: 0 7px; }
+.infinite-workbook-app .infinite-toolbar select:hover { border-color: #9aa9bc; }
+.infinite-table-card { position: relative; display: flex; flex: 1 1 auto; min-height: 0; height: auto !important; outline: 0; overflow: hidden; }
+.infinite-grid-shell { position: relative; flex: 1 1 auto; min-width: 0; min-height: 0; overflow: hidden; background: #fff; border-top: 1px solid #dfe3e8; border-bottom: 1px solid #dfe3e8; }
+.infinite-grid-scroll { position: absolute; right: 0; bottom: 0; overflow: auto; overscroll-behavior: contain; contain: strict; background: #fff; }
+.infinite-grid-canvas { position: relative; min-width: 100%; min-height: 100%; }
+.infinite-grid-fixed-head { position: absolute; top: 0; right: 0; overflow: hidden; z-index: 20; pointer-events: none; background: #f5f7fa; border-bottom: 1px solid #dfe3e8; }
+.infinite-grid-fixed-head-track { position: absolute; top: 0; left: 0; will-change: transform; }
+.infinite-grid-corner { position: absolute; top: 0; left: 0; z-index: 24; border: 0; border-right: 1px solid #dfe3e8; border-bottom: 1px solid #dfe3e8; background: #f5f7fa; cursor: default; }
+.infinite-grid-corner:hover { background: #edf2f8; }
+.infinite-grid-fixed-rows { position: absolute; left: 0; bottom: 0; z-index: 19; overflow: hidden; background: #f5f7fa; border-right: 1px solid #dfe3e8; pointer-events: none; }
+.infinite-grid-fixed-rows-track { position: absolute; top: 0; left: 0; will-change: transform; }
+.infinite-grid-col-head, .infinite-grid-row-head { position: absolute; box-sizing: border-box; border: 0; border-right: 1px solid #dfe3e8; border-bottom: 1px solid #dfe3e8; background: #f5f7fa; color: #667287; pointer-events: auto; font: 600 12px/1 "Microsoft YaHei", sans-serif; }
+.infinite-grid-col-head { top: 0; display: grid; place-items: center; }
+.infinite-grid-row-head { left: 0; display: grid; place-items: center; font-size: 11px; font-weight: 500; }
+.infinite-grid-col-head:hover, .infinite-grid-row-head:hover { background: #edf2f8; color: #2d61c9; }
+.infinite-grid-col-head.selected, .infinite-grid-row-head.selected { background: #dbe9ff; color: #1f5fc4; }
+.infinite-grid-col-head i, .infinite-grid-row-head i { position: absolute; z-index: 2; display: block; }
+.infinite-grid-col-head i { top: 0; right: -3px; width: 7px; height: 100%; cursor: col-resize; }
+.infinite-grid-row-head i { bottom: -3px; left: 0; width: 100%; height: 7px; cursor: row-resize; }
+.infinite-grid-cell { position: absolute; z-index: 1; display: flex; box-sizing: border-box; min-width: 40px; min-height: 20px; overflow: visible; border: 1px solid #e0e3e7; background: #fff; color: #1f2329; }
+.infinite-grid-cell:hover { z-index: 3; background-color: #f8fbff; }
+.infinite-grid-cell.selected { z-index: 2; }
+.infinite-grid-cell.editing { z-index: 16; }
+.infinite-grid-cell.format-bold .infinite-grid-cell-button { font-weight: 700; }
+.infinite-grid-cell.format-italic .infinite-grid-cell-button { font-style: italic; }
+.infinite-grid-cell.format-underline .infinite-grid-cell-button { text-decoration: underline; }
+.infinite-grid-cell.format-wrap .infinite-grid-cell-button { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.35; }
+.infinite-grid-cell-button { width: 100%; min-width: 0; height: 100%; padding: 0 calc(7px * var(--sheet-zoom, 1)); border: 0; background: transparent; color: inherit; font: inherit; text-align: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: cell; }
+.infinite-grid-editor { width: 100%; height: 100%; min-width: 0; padding: 0 calc(6px * var(--sheet-zoom, 1)); border: 2px solid #3d73f1; outline: 0; background: #fff; color: #1f2329; font: inherit; box-sizing: border-box; }
+.infinite-selection-layer { position: absolute; top: 0; left: 0; z-index: 8; pointer-events: none; }
+.infinite-selection { position: absolute; box-sizing: border-box; border: 2px solid #3d73f1; pointer-events: none; }
+.infinite-selection.single { border-width: 2px; }
+.infinite-formula-range { position: absolute; z-index: 9; box-sizing: border-box; border: 2px solid var(--formula-reference-color, #3d73f1); pointer-events: none; }
+.infinite-grid-cell.formula-reference-cell { outline: 1px solid var(--formula-reference-color, #3d73f1); outline-offset: -1px; }
+.infinite-fill-preview { position: absolute; z-index: 7; box-sizing: border-box; border: 1px dashed #3d73f1; background: rgba(61, 115, 241, .08); }
+.infinite-fill-handle { position: absolute; z-index: 18; width: 7px; height: 7px; margin: 0; padding: 0; border: 1px solid #fff; border-radius: 1px; background: #3d73f1; box-shadow: 0 0 0 1px #3d73f1; cursor: crosshair; }
+.infinite-fill-handle:hover { background: #1f5fc4; box-shadow: 0 0 0 1px #1f5fc4; }
+.infinite-remote-tag { position: absolute; top: -24px; left: -1px; z-index: 25; max-width: 180px; height: 21px; padding: 0 7px; border-radius: 4px 4px 4px 0; background: #8a55c7; color: #fff; font-size: 11px; line-height: 21px; white-space: nowrap; pointer-events: none; }
+.infinite-grid-cell.remote-cell { outline: 2px solid #8a55c7; outline-offset: -2px; }
+.infinite-formula-bar { position: relative; flex: 0 0 38px; }
+.infinite-formula-bar .formula-editor-card { position: relative; }
+.formula-suggestions { position: absolute; top: calc(100% + 3px); left: 0; z-index: 80; width: 220px; max-height: 220px; overflow: auto; padding: 4px; border: 1px solid #dce3ec; border-radius: 5px; background: #fff; box-shadow: 0 8px 24px rgba(30, 43, 66, .16); }
+.formula-suggestions button { display: flex; align-items: center; gap: 8px; width: 100%; height: 28px; padding: 0 8px; border: 0; border-radius: 3px; background: transparent; color: #344054; text-align: left; font-size: 12px; }
+.formula-suggestions button:hover { background: #edf3ff; color: #215fc9; }
+.formula-suggestions span { color: #3d73f1; font: italic 600 14px/1 Georgia, serif; }
+.infinite-color-menu { position: absolute; top: calc(100% + 4px); left: 0; z-index: 70; display: grid; grid-template-columns: repeat(3, 28px); gap: 5px; padding: 7px; border: 1px solid #dce3ec; border-radius: 5px; background: #fff; box-shadow: 0 8px 24px rgba(30, 43, 66, .16); }
+.infinite-color-menu button { width: 28px !important; min-width: 28px !important; height: 24px !important; min-height: 24px !important; padding: 0 !important; border: 1px solid #cfd7e3 !important; border-radius: 3px !important; }
+.infinite-color-menu button:hover { outline: 2px solid #3d73f1; outline-offset: 1px; }
+.infinite-format-panel { position: absolute; top: 96px; right: 170px; z-index: 90; display: grid; min-width: 160px; padding: 7px; border: 1px solid #dce3ec; border-radius: 5px; background: #fff; box-shadow: 0 8px 26px rgba(30, 43, 66, .16); }
+.infinite-format-panel > div { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 6px; color: #3a4553; font-size: 12px; }
+.infinite-format-panel > div button { width: 22px; height: 22px; padding: 3px; border: 0; background: transparent; color: #677386; }
+.infinite-format-panel > button { height: 30px; padding: 0 8px; border: 0; border-radius: 3px; background: transparent; color: #374151; text-align: left; font-size: 12px; }
+.infinite-format-panel > button:hover, .infinite-format-panel > button.active { background: #edf3ff; color: #215fc9; }
+.infinite-find-panel { position: absolute; top: 55px; right: 18px; z-index: 90; display: flex; align-items: center; gap: 6px; padding: 7px; border: 1px solid #dce3ec; border-radius: 5px; background: #fff; box-shadow: 0 8px 26px rgba(30, 43, 66, .16); }
+.infinite-find-panel input { width: 180px; }
+.infinite-find-panel span { min-width: 56px; color: #697586; font-size: 12px; white-space: nowrap; }
+.infinite-find-panel > button { height: 28px; padding: 0 8px; border: 1px solid #dce3ec; border-radius: 4px; background: #fff; color: #465261; font-size: 12px; }
+.infinite-find-panel > button:hover { background: #edf3ff; color: #215fc9; }
+.infinite-find-panel .panel-close { width: 28px; padding: 5px; }
+.infinite-sheet-tabs { flex: 0 0 36px; }
+.infinite-sheet-delete { width: 28px; height: 28px; padding: 5px !important; border-radius: 4px !important; color: #697586 !important; }
+.infinite-sheet-delete:hover { background: #edf1f6 !important; color: #2f3640 !important; }
+.infinite-sheet-statistics { flex: 0 0 24px; }
+.infinite-context-menu { z-index: 120; min-width: 200px; padding: 5px; }
+.infinite-context-menu button { display: flex; align-items: center; gap: 8px; width: 100%; height: 30px; padding: 0 8px; border: 0; border-radius: 3px; background: transparent; color: #344054; text-align: left; font-size: 12px; }
+.infinite-context-menu button:hover { background: #edf3ff; color: #215fc9; }
+.infinite-context-menu svg { width: 15px; height: 15px; }
+.infinite-context-menu hr { height: 1px; margin: 5px 2px; border: 0; background: #e5e9f0; }
+@media (max-width: 760px) {
+  .infinite-workbook-app .infinite-toolbar { overflow-x: auto; flex-wrap: nowrap; }
+  .infinite-workbook-app .infinite-toolbar .toolbar-group { flex: 0 0 auto; }
+  .infinite-find-panel { right: 8px; max-width: calc(100vw - 16px); }
+  .infinite-find-panel input { width: 110px; }
+}
+.excel-app-shell .virtual-grid-shell .grid-cell .editable-cell > button {
+  padding-left: calc(7px * var(--sheet-zoom, 1));
+  padding-right: calc(7px * var(--sheet-zoom, 1));
+  font-size: calc(14px * var(--sheet-zoom, 1));
+}
+.excel-app-shell .virtual-grid-shell .grid-cell .editable-cell input {
+  padding-left: calc(9px * var(--sheet-zoom, 1));
+  padding-right: calc(9px * var(--sheet-zoom, 1));
+  font-size: calc(12px * var(--sheet-zoom, 1));
+}
+.excel-app-shell .virtual-grid-fixed-head .grid-corner,
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head {
+  height: calc(32px * var(--sheet-zoom, 1));
+}
+
+/* Make the row/column rails clearly follow the active selection.  These
+   selectors intentionally come last so the selected state is not washed out
+   by the shared white canvas rules above. */
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head.selected,
+.excel-app-shell .virtual-grid-fixed-rows .grid-row-head.selected {
+  background: #d8e6ff !important;
+  color: #1f55bd !important;
+  font-weight: 700;
+  box-shadow: none !important;
+}
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head.selected {
+  /* Keep adjacent selected column labels visually continuous instead of
+     drawing one separate blue rule per button. */
+  border-right-color: #d8e6ff !important;
+}
+.excel-app-shell .virtual-grid-fixed-rows .grid-row-head.selected {
+  border-bottom-color: #d8e6ff !important;
+}
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head.selected span,
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head.selected small {
+  color: #1f55bd !important;
+  font-weight: 700;
+}
+@media (max-width: 720px) {
+  .excel-app-shell .sheet-statistics { gap: 8px; }
+  .excel-app-shell .sheet-statistics-values { gap: 8px; }
+  .excel-app-shell .sheet-statistics-values span + span::before { left: -5px; }
+  .excel-app-shell .sheet-zoom-controls { padding-left: 8px; }
+  .excel-app-shell .sheet-zoom-controls input[type="range"] { width: 82px; }
+}
+
+/* Mobile workbook mode ----------------------------------------------------
+   Keep the sheet itself native and scrollable.  Only the surrounding chrome
+   becomes compact: commands stay in one touch-scrollable strip, while the
+   grid keeps its real column widths so Excel/WPS copy, selection and drag
+   gestures remain predictable on a narrow viewport. */
+@media (max-width: 720px) {
+  html,
+  body,
+  #root,
+  .excel-app-shell,
+  .excel-app-shell .workspace,
+  .excel-app-shell .workspace-main {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .excel-app-shell .workspace-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Do not wrap the full desktop command set into a tall wall of buttons on
+     phones.  The strip behaves like the compact command rail in mobile
+     spreadsheet apps and has native momentum scrolling. */
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    height: 48px;
+    min-height: 48px;
+    margin: 0;
+    padding: 5px 8px;
+    justify-content: flex-start !important;
+    align-content: center;
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    border: 0;
+    border-bottom: 1px solid #e3e8ef;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar > .toolbar-group {
+    flex: 0 0 auto;
+    flex-wrap: nowrap !important;
+    gap: 2px;
+    padding-right: 5px;
+  }
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button,
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-menu-anchor > button {
+    flex: 0 0 auto;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 8px;
+    border-radius: 7px;
+    font-size: 12px;
+    line-height: 36px;
+    white-space: nowrap;
+    touch-action: manipulation;
+  }
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button > svg,
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-menu-anchor > button > svg {
+    width: 18px;
+    height: 18px;
+    margin-right: 4px;
+  }
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group.formatting-group > button[aria-label] {
+    min-width: 36px;
+  }
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-select {
+    flex: 0 0 auto;
+    height: 36px;
+    min-height: 36px;
+  }
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-select-trigger {
+    height: 36px;
+    min-width: 72px;
+    padding: 0 8px;
+    border-radius: 7px;
+    font-size: 12px;
+    touch-action: manipulation;
+  }
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .font-family-select,
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .font-family-select .toolbar-select-trigger {
+    width: 128px;
+    min-width: 128px;
+  }
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .font-family-select .toolbar-select-menu {
+    min-width: 190px;
+  }
+
+  /* Toolbar flyouts cannot be allowed to disappear inside the horizontal
+     scroller.  On touch screens they open as viewport-safe sheets below the
+     command rail instead. */
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-select-menu,
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .format-popover,
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .color-palette {
+    position: fixed !important;
+    top: 54px !important;
+    right: auto !important;
+    left: 8px !important;
+    max-width: calc(100vw - 16px);
+  }
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-select-menu {
+    width: min(220px, calc(100vw - 16px));
+    max-height: min(42vh, 260px);
+    overflow-y: auto;
+    touch-action: pan-y;
+  }
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .color-palette {
+    width: min(275px, calc(100vw - 16px));
+    max-height: min(66vh, 460px);
+    overflow-y: auto;
+    touch-action: pan-y;
+  }
+
+  .excel-app-shell .formula-bar {
+    flex: 0 0 42px;
+    height: 42px;
+    min-height: 42px;
+    padding: 4px 8px;
+    gap: 6px;
+    overflow: hidden;
+  }
+  .excel-app-shell .formula-name-card {
+    flex: 0 0 72px;
+    width: 72px;
+    height: 34px;
+    padding: 0 5px;
+    border-radius: 8px;
+  }
+  .excel-app-shell .formula-name-card .formula-name-box {
+    height: 30px;
+    font-size: 12px;
+  }
+  .excel-app-shell .formula-editor-card {
+    height: 34px;
+    padding: 0 7px;
+    border-radius: 8px;
+  }
+  .excel-app-shell .formula-editor-card .formula-content-wrap,
+  .excel-app-shell .formula-editor-card .formula-content-input {
+    height: 30px;
+    font-size: 13px;
+  }
+
+  .excel-app-shell .sheet-tabs {
+    flex: 0 0 42px;
+    height: 42px;
+    min-height: 42px;
+    gap: 0;
+    padding: 0 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    white-space: nowrap;
+  }
+  .excel-app-shell .sheet-tabs button {
+    flex: 0 0 auto;
+    min-width: 36px;
+    height: 34px !important;
+    padding: 0 11px !important;
+    border-radius: 6px !important;
+    font-size: 12px;
+    touch-action: manipulation;
+  }
+  .excel-app-shell .sheet-add-button {
+    width: 34px;
+    min-width: 34px;
+  }
+  .excel-app-shell .sheet-tab-spacer { flex: 0 0 6px; }
+
+  .excel-app-shell .excel-table-card {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+  .excel-app-shell .virtual-grid-shell,
+  .excel-app-shell .virtual-grid-body {
+    min-width: 0;
+    min-height: 0;
+  }
+  .excel-app-shell .virtual-grid-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: auto;
+    touch-action: pan-x pan-y;
+  }
+  .excel-app-shell .grid-cell,
+  .excel-app-shell .grid-col-head,
+  .excel-app-shell .grid-row-head {
+    touch-action: manipulation;
+  }
+  .excel-app-shell .grid-cell .editable-cell > button {
+    min-height: calc(36px * var(--sheet-zoom, 1));
+    padding-inline: 8px;
+  }
+  .excel-app-shell .grid-cell .editable-cell input {
+    min-height: calc(36px * var(--sheet-zoom, 1));
+    padding-inline: 8px;
+  }
+  .excel-app-shell .grid-col-head i,
+  .excel-app-shell .grid-row-head i {
+    z-index: 5;
+  }
+  .excel-app-shell .grid-col-head i { right: -5px; width: 12px; }
+  .excel-app-shell .grid-row-head i { bottom: -5px; height: 12px; }
+
+  .excel-app-shell .sheet-statistics {
+    flex: 0 0 40px;
+    height: 40px;
+    min-height: 40px;
+    gap: 8px;
+    padding: 0 8px;
+    font-size: 11px;
+    overflow: hidden;
+  }
+  .excel-app-shell .sheet-statistics-values {
+    flex: 1 1 auto;
+    gap: 8px;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .excel-app-shell .sheet-statistics-values span {
+    flex: 0 0 auto;
+    font-size: 11px;
+  }
+  .excel-app-shell .sheet-zoom-controls {
+    flex: 0 0 auto;
+    height: 30px;
+    gap: 2px;
+    padding-left: 6px;
+  }
+  .excel-app-shell .sheet-zoom-value {
+    min-width: 38px;
+    font-size: 11px;
+  }
+  .excel-app-shell .sheet-zoom-controls button {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    touch-action: manipulation;
+  }
+  .excel-app-shell .sheet-zoom-controls input[type="range"] {
+    width: 62px;
+    height: 28px;
+    margin-inline: 7px;
+    touch-action: pan-x;
+  }
+
+  .excel-app-shell .format-panel,
+  .excel-app-shell .find-panel {
+    position: fixed !important;
+    z-index: 10000 !important;
+    top: 54px !important;
+    right: 8px !important;
+    left: 8px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: calc(100dvh - 70px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+  .excel-app-shell .find-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 6px;
+    padding: 8px;
+  }
+  .excel-app-shell .find-panel input {
+    width: auto;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .excel-app-shell .find-panel > button:not(.panel-close) {
+    min-height: 34px;
+    height: 34px;
+    touch-action: manipulation;
+  }
+  .excel-app-shell .find-panel .panel-close {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+  }
+
+  .excel-app-shell .context-menu {
+    width: calc(100vw - 16px);
+    max-width: calc(100vw - 16px);
+    max-height: min(72dvh, 560px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+    padding: 6px;
+  }
+  .excel-app-shell .context-menu > button {
+    min-height: 42px;
+    height: 42px;
+    font-size: 13px;
+    touch-action: manipulation;
+  }
+  .excel-app-shell .context-menu-group-label {
+    padding-top: 8px;
+  }
+
+  .excel-app-shell .toast {
+    right: 8px;
+    bottom: 48px;
+    left: 8px;
+    max-width: none;
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  /* Hover-only tooltip labels and hover repaint are noisy on touch devices.
+     Keep the active selection and persisted fill/border visuals untouched. */
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-group > button[aria-label]::after,
+  .excel-app-shell .spreadsheet-toolbar.excel-toolbar .toolbar-menu-anchor > button[aria-label]::after {
+    display: none !important;
+  }
+  .excel-app-shell .grid-col-head:hover,
+  .excel-app-shell .grid-row-head:hover {
+    background: inherit;
+    color: inherit;
+  }
+}
+
+/* Professional Excel-style border picker. */
+.excel-app-shell .border-menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  z-index: 90;
+  width: 218px;
+  padding: 9px;
+  border: 1px solid #d8e0ea;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 14px 34px rgba(35, 52, 78, .18);
+  color: #26364d;
+}
+.excel-app-shell .border-menu strong {
+  display: block;
+  padding: 3px 8px 8px;
+  color: #334e70;
+  font-size: 13px;
+  font-weight: 700;
+}
+.excel-app-shell .border-menu button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 32px;
+  padding: 0 8px;
+  gap: 9px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #304156;
+  font-size: 12px;
+  line-height: 1;
+  text-align: left;
+  cursor: pointer;
+}
+.excel-app-shell .border-menu button:hover,
+.excel-app-shell .border-menu button:focus-visible {
+  background: #eef4ff;
+  color: #235fc9;
+  outline: none;
+}
+.excel-app-shell .border-menu-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  color: #566579;
+}
+.excel-app-shell .border-menu-icon svg { width: 17px; height: 17px; stroke-width: 1.7; }
+.excel-app-shell .border-menu button:hover .border-menu-icon,
+.excel-app-shell .border-menu button:focus-visible .border-menu-icon { color: currentColor; }
+.excel-app-shell .border-menu kbd {
+  margin-left: auto;
+  color: #94a0b1;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/*
+ * Freeze panes are compositor-driven. The scroll event writes these four
+ * variables synchronously on the grid shell, so the fixed header/row rail and
+ * the frozen cells move in the same paint as the native scroller. React only
+ * recalculates the virtualized window on the next animation frame.
+ */
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head:not(.grid-col-head-frozen) {
+  transform: translate3d(var(--sheet-scroll-x-neg, 0px), 0, 0);
+  will-change: transform;
+}
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head-frozen {
+  transform: none;
+}
+.excel-app-shell .virtual-grid-fixed-rows .grid-row-head:not(.grid-row-head-frozen) {
+  transform: translate3d(0, var(--sheet-scroll-y-neg, 0px), 0);
+  will-change: transform;
+}
+.excel-app-shell .virtual-grid-fixed-rows .grid-row-head-frozen {
+  transform: none;
+}
+.excel-app-shell .virtual-grid-body .grid-row.grid-row-frozen {
+  transform: translate3d(0, var(--sheet-scroll-y, 0px), 0);
+  will-change: transform;
+}
+.excel-app-shell .virtual-grid-body .grid-cell.grid-cell-frozen {
+  transform: translate3d(var(--sheet-scroll-x, 0px), 0, 0);
+  will-change: transform;
+}
+.excel-app-shell .virtual-grid-body .grid-cell.grid-cell-frozen-row.grid-cell-frozen {
+  transform: translate3d(var(--sheet-scroll-x, 0px), var(--sheet-scroll-y, 0px), 0);
+}
+.excel-app-shell .virtual-grid-body .grid-row.grid-row-frozen .grid-cell.grid-cell-frozen-row {
+  transform: translate3d(var(--sheet-scroll-x, 0px), 0, 0);
+}
+
+/* Move the non-frozen rails as two compositor tracks. This keeps scroll input
+ * off the React render path and avoids creating a transform layer per header
+ * or row-number button. */
+.excel-app-shell .virtual-grid-fixed-head-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+}
+.excel-app-shell .virtual-grid-fixed-head-viewport {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.excel-app-shell .virtual-grid-fixed-head-viewport .grid-col-head,
+.excel-app-shell .virtual-grid-fixed-head-viewport .grid-col-head-frozen {
+  pointer-events: auto;
+  transform: none !important;
+  will-change: auto;
+}
+.excel-app-shell .virtual-grid-fixed-head-track .grid-col-head {
+  pointer-events: auto;
+  transform: none !important;
+  will-change: auto;
+}
+.excel-app-shell .virtual-grid-fixed-rows-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+}
+.excel-app-shell .virtual-grid-fixed-rows-track .grid-row-head {
+  pointer-events: auto;
+  transform: none !important;
+  will-change: auto;
+}
+.excel-app-shell .virtual-grid-fixed-head .grid-col-head-frozen,
+.excel-app-shell .virtual-grid-fixed-rows .grid-row-head-frozen {
+  transform: none !important;
+  will-change: auto;
+}
+
+/* True freeze-pane layers. Frozen content is rendered once outside the
+ * scrolling canvas; only the track transform follows the native scroller. */
+.excel-app-shell .virtual-grid-frozen-row-track {
+  position: absolute;
+  left: 0;
+  overflow: hidden;
+  z-index: 8;
+  pointer-events: none;
+  will-change: transform;
+}
+.excel-app-shell .virtual-grid-frozen-row-track .grid-cell {
+  pointer-events: auto;
+}
+.excel-app-shell .virtual-grid-fixed-column {
+  position: absolute;
+  overflow: hidden;
+  z-index: 38;
+  background: var(--column-header-surface, #f1f4f8);
+  pointer-events: none;
+}
+.excel-app-shell .virtual-grid-fixed-column-track {
+  position: absolute;
+  left: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+.excel-app-shell .virtual-grid-fixed-column-track .grid-cell {
+  pointer-events: auto;
+}
+.excel-app-shell .virtual-grid-fixed-head-track,
+.excel-app-shell .virtual-grid-fixed-rows-track {
+  will-change: transform;
+}
+.excel-app-shell .virtual-grid-scroll {
+  overscroll-behavior: contain;
+}

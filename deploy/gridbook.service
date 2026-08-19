@@ -1,0 +1,27 @@
+[Unit]
+Description=GridBook collaborative spreadsheet service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/gridbook
+Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=GRIDBOOK_HOST=127.0.0.1
+Environment=GRIDBOOK_PORT=8767
+Environment=GRIDBOOK_DATA=/var/lib/gridbook/state.json
+Environment=GRIDBOOK_V2_DATA=/var/lib/gridbook/workbook-v2.json
+ExecStart=/usr/bin/python3 /opt/gridbook/backend/server.py
+Restart=on-failure
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=full
+ReadWritePaths=/var/lib/gridbook
+
+[Install]
+WantedBy=multi-user.target
